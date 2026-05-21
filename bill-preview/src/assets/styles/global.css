@@ -1,0 +1,60 @@
+:root {
+  --global-primary-color: #16baaa;
+  --global-normal-color: #1e9fff;
+  --global-warm-color: #ffb800;
+  --global-danger-color: #ff5722;
+  --global-checked-color: #16b777;
+  --global-info-color: #31bdec;
+  
+  --header-height: 60px;
+  --sidebar-width: 220px;
+  --sidebar-collapsed-width: 64px;
+  --tab-height: 42px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #app {
+  width: 100%;
+  height: 100%;
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+}
+
+.layui-layout-body {
+  background: #f5f7f9;
+}
+
+/* 主色调覆盖 */
+.layui-btn-primary {
+  --layui-btn-primary-border: var(--global-primary-color);
+}
+
+.layui-btn-primary:hover {
+  color: var(--global-primary-color);
+}
+
+/* 表格样式 */
+.layui-table-header {
+  background-color: #f8f8f8;
+  font-weight: 600;
+}
+
+/* 卡片样式 */
+.layui-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* 按钮圆角 */
+.layui-btn {
+  border-radius: 4px;
+}
+
+/* 输入框圆角 */
+.layui-input, .layui-select, .layui-textarea {
+  border-radius: 4px;
+}
