@@ -1,1326 +1,277 @@
 <template>
-  <div class="salary-container">
-    <div class="page-header">
-      <h2><i class="layui-icon layui-icon-dollar"></i> 工资管理</h2>
-      <div class="header-actions">
-        <button class="layui-btn layui-btn-primary" @click="showAddModal">
-          <i class="layui-icon layui-icon-add-1"></i> 添加工资记录
-        </button>
-        <button class="layui-btn layui-btn-primary" @click="exportSalary">
-          <i class="layui-icon layui-icon-export"></i> 导出
-        </button>
-      </div>
-    </div>
-
-    <!-- 筛选条件 -->
-    <div class="filter-section">
-      <div class="filter-item">
-        <label>月份:</label>
-        <input type="month" class="layui-input" v-model="filters.month" style="width: 160px;" />
-      </div>
-      <div class="filter-item">
-        <label>家庭成员:</label>
-        <select class="layui-select" v-model="filters.member">
-          <option value="">全部</option>
-          <option v-for="m in familyMembers" :key="m.id" :value="m.name">{{ m.name }}</option>
-        </select>
-      </div>
-      <div class="filter-item">
-        <label>公司:</label>
-        <select class="layui-select" v-model="filters.company">
-          <option value="">全部</option>
-          <option v-for="c in companies" :key="c.id" :value="c.name">{{ c.name }}</option>
-        </select>
-      </div>
-      <button class="layui-btn layui-btn-sm" @click="handleFilter">
-        <i class="layui-icon layui-icon-search"></i> 查询
-      </button>
-      <button class="layui-btn layui-btn-sm layui-btn-primary" @click="resetFilter">
-        <i class="layui-icon layui-icon-refresh"></i> 重置
-      </button>
-    </div>
-
-    <!-- 汇总卡片 -->
-    <div class="summary-cards">
-      <div class="summary-card">
-        <div class="summary-label">税前工资总额</div>
-        <div class="summary-value text-primary">¥ {{ summary.grossTotal }}</div>
-      </div>
-      <div class="summary-card">
-        <div class="summary-label">税后工资总额</div>
-        <div class="summary-value text-success">¥ {{ summary.netTotal }}</div>
-      </div>
-      <div class="summary-card">
-        <div class="summary-label">公积金总额</div>
-        <div class="summary-value text-warning">¥ {{ summary.housingFundTotal }}</div>
-      </div>
-      <div class="summary-card">
-        <div class="summary-label">社保总额</div>
-        <div class="summary-value text-danger">¥ {{ summary.socialSecurityTotal }}</div>
-      </div>
-    </div>
-
-    <!-- 图表面板 -->
-    <div class="charts-row">
-      <div class="chart-card">
-        <div class="card-header">
-          <h3><i class="layui-icon layui-icon-chart"></i> 工资收入趋势</h3>
-        </div>
-        <div class="card-body">
-          <div ref="trendChartRef" class="chart-container"></div>
-        </div>
-      </div>
-      <div class="chart-card">
-        <div class="card-header">
-          <h3><i class="layui-icon layui-icon-pie"></i> 工资构成分析</h3>
-        </div>
-        <div class="card-body">
-          <div ref="pieChartRef" class="chart-container"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 工资明细表格 -->
-    <div class="salary-table-wrapper">
-      <div class="table-header">
-        <h3><i class="layui-icon layui-icon-list"></i> 工资明细</h3>
-        <div class="table-actions">
-          <button class="layui-btn layui-btn-sm layui-btn-primary" @click="viewSecurityDetail">
-            <i class="layui-icon layui-icon-set"></i> 社保明细
-          </button>
-          <button class="layui-btn layui-btn-sm layui-btn-primary" @click="viewSumReport">
-            <i class="layui-icon layui-icon-chart"></i> 汇总报表
-          </button>
-        </div>
+  <div class="salary-panel-container">
+    <lay-space :size="20" direction="vertical" fill>
+      <div class="panel-header">
+        <h2>工资管理</h2>
+        <lay-button type="normal" @click="showAddSalary">
+          <i class="layui-icon layui-icon-add-1"></i> 添加工资
+        </lay-button>
       </div>
 
-      <div class="table-wrapper">
-        <table class="layui-table">
-          <thead>
-            <tr>
-              <th><input type="checkbox" v-model="selectAll" @change="toggleSelectAll" /></th>
-              <th>月份</th>
-              <th>姓名</th>
-              <th>公司</th>
-              <th>基本工资</th>
-              <th>绩效奖金</th>
-              <th>补贴</th>
-              <th>加班费</th>
-              <th>应发工资</th>
-              <th>社保扣款</th>
-              <th>公积金</th>
-              <th>个税</th>
-              <th>实发工资</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="salary in paginatedSalaries" :key="salary.id">
-              <td><input type="checkbox" v-model="selectedIds" :value="salary.id" /></td>
-              <td>{{ salary.month }}</td>
-              <td>{{ salary.name }}</td>
-              <td>{{ salary.company }}</td>
-              <td>¥ {{ formatNumber(salary.baseSalary) }}</td>
-              <td>¥ {{ formatNumber(salary.performance) }}</td>
-              <td>¥ {{ formatNumber(salary.allowance) }}</td>
-              <td>¥ {{ formatNumber(salary.overtime) }}</td>
-              <td class="text-primary font-weight">¥ {{ formatNumber(salary.gross) }}</td>
-              <td class="text-danger">-¥ {{ formatNumber(salary.socialSecurity) }}</td>
-              <td class="text-warning">-¥ {{ formatNumber(salary.housingFund) }}</td>
-              <td class="text-danger">-¥ {{ formatNumber(salary.tax) }}</td>
-              <td class="text-success font-weight">¥ {{ formatNumber(salary.net) }}</td>
-              <td>
-                <button class="layui-btn layui-btn-xs layui-btn-primary" @click="viewDetail(salary)">
-                  <i class="layui-icon layui-icon-eye"></i>
-                </button>
-                <button class="layui-btn layui-btn-xs layui-btn-primary" @click="editSalary(salary)">
-                  <i class="layui-icon layui-icon-edit"></i>
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- 分页 -->
-      <div class="pagination">
-        <div class="pagination-info">
-          共 {{ totalRecords }} 条，第 {{ currentPage }} 页
-        </div>
-        <div class="pagination-control">
-          <button class="layui-btn layui-btn-sm layui-btn-primary" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">上一页</button>
-          <button class="layui-btn layui-btn-sm" :class="currentPage === 1 ? '' : 'layui-btn-primary'">1</button>
-          <button class="layui-btn layui-btn-sm layui-btn-primary" @click="changePage(currentPage + 1)">下一页</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 添加/编辑弹窗 -->
-    <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
-      <div class="modal-dialog">
-        <div class="modal-header">
-          <h4>{{ editMode ? '编辑工资记录' : '添加工资记录' }}</h4>
-          <button class="modal-close" @click="closeModal"><i class="layui-icon layui-icon-close"></i></button>
-        </div>
-        <div class="modal-body">
-          <div class="salary-form">
-            <div class="form-row">
-              <div class="form-item">
-                <label>月份 <span class="required">*</span></label>
-                <input type="month" class="layui-input" v-model="form.month" />
+      <lay-row :gutter="[20, 20]">
+        <lay-col lg="8" md="8" sm="6" xs="12">
+          <lay-card bordered class="summary-card">
+            <div class="card-body">
+              <div class="card-icon income">
+                <i class="layui-icon layui-icon-dollar"></i>
               </div>
-              <div class="form-item">
-                <label>姓名 <span class="required">*</span></label>
-                <select class="layui-select" v-model="form.name">
-                  <option value="">请选择</option>
-                  <option v-for="m in familyMembers" :key="m.id" :value="m.name">{{ m.name }}</option>
-                </select>
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-item">
-                <label>公司</label>
-                <select class="layui-select" v-model="form.company">
-                  <option value="">请选择</option>
-                  <option v-for="c in companies" :key="c.id" :value="c.name">{{ c.name }}</option>
-                </select>
-              </div>
-              <div class="form-item">
-                <label>部门</label>
-                <input type="text" class="layui-input" v-model="form.department" />
-              </div>
-            </div>
-            <div class="form-section">
-              <h5 class="section-title">收入项</h5>
-              <div class="form-row">
-                <div class="form-item">
-                  <label>基本工资</label>
-                  <input type="number" class="layui-input" v-model="form.baseSalary" @input="calculateTotal" />
+              <div class="card-content">
+                <div class="card-main">
+                  <lay-space :size="8">
+                    <span class="card-label">本月工资</span>
+                    <span class="card-value text-success">¥ 8,500.00</span>
+                  </lay-space>
                 </div>
-                <div class="form-item">
-                  <label>绩效奖金</label>
-                  <input type="number" class="layui-input" v-model="form.performance" @input="calculateTotal" />
-                </div>
-              </div>
-              <div class="form-row">
-                <div class="form-item">
-                  <label>补贴</label>
-                  <input type="number" class="layui-input" v-model="form.allowance" @input="calculateTotal" />
-                </div>
-                <div class="form-item">
-                  <label>加班费</label>
-                  <input type="number" class="layui-input" v-model="form.overtime" @input="calculateTotal" />
+                <div class="card-trend trend-up">
+                  <i class="layui-icon layui-icon-up"></i>
+                  <span>准时发放</span>
                 </div>
               </div>
             </div>
-            <div class="form-section">
-              <h5 class="section-title">扣款项</h5>
-              <div class="form-row">
-                <div class="form-item">
-                  <label>社保个人部分</label>
-                  <input type="number" class="layui-input" v-model="form.socialSecurity" @input="calculateTotal" />
-                </div>
-                <div class="form-item">
-                  <label>公积金个人部分</label>
-                  <input type="number" class="layui-input" v-model="form.housingFund" @input="calculateTotal" />
-                </div>
+          </lay-card>
+        </lay-col>
+        <lay-col lg="8" md="8" sm="6" xs="12">
+          <lay-card :bordered="false" class="summary-card">
+            <div class="card-body">
+              <div class="card-icon bonus">
+                <i class="layui-icon layui-icon-gift"></i>
               </div>
-              <div class="form-row">
-                <div class="form-item">
-                  <label>个人所得税</label>
-                  <input type="number" class="layui-input" v-model="form.tax" @input="calculateTotal" />
+              <div class="card-content">
+                <div class="card-main">
+                  <lay-space :size="8">
+                    <span class="card-label">年度奖金</span>
+                    <span class="card-value text-primary">¥ 45,000.00</span>
+                  </lay-space>
                 </div>
-                <div class="form-item">
-                  <label>其他扣款</label>
-                  <input type="number" class="layui-input" v-model="form.otherDeduction" @input="calculateTotal" />
+                <div class="card-trend">
+                  已入账 ¥ 20,000
                 </div>
               </div>
             </div>
-            <div class="form-result">
-              <div class="result-item">
-                <span>应发工资：</span>
-                <span class="result-value text-primary">¥ {{ formatNumber(calculateGross()) }}</span>
+          </lay-card>
+        </lay-col>
+        <lay-col lg="8" md="8" sm="6" xs="12">
+          <lay-card :bordered="false" class="summary-card">
+            <div class="card-body">
+              <div class="card-icon total">
+                <i class="layui-icon layui-icon-rmb"></i>
               </div>
-              <div class="result-item">
-                <span>实发工资：</span>
-                <span class="result-value text-success">¥ {{ formatNumber(calculateNet()) }}</span>
+              <div class="card-content">
+                <div class="card-main">
+                  <lay-space :size="8">
+                    <span class="card-label">年度总收入</span>
+                    <span class="card-value">¥ 122,000.00</span>
+                  </lay-space>
+                </div>
+                <div class="card-trend trend-up">
+                  <i class="layui-icon layui-icon-up"></i>
+                  <span>同比增长 8.5%</span>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="layui-btn layui-btn-primary" @click="closeModal">取消</button>
-          <button class="layui-btn layui-btn-normal" @click="saveDraft">保存草稿</button>
-          <button class="layui-btn" @click="submitForm">确认提交</button>
-        </div>
-      </div>
-    </div>
+          </lay-card>
+        </lay-col>
+      </lay-row>
 
-    <!-- 社保明细弹窗 -->
-    <div v-if="showSecurityModal" class="modal-overlay" @click.self="showSecurityModal = false">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-header">
-          <h4>社保明细</h4>
-          <button class="modal-close" @click="showSecurityModal = false"><i class="layui-icon layui-icon-close"></i></button>
+      <lay-row :gutter="[20, 20]">
+        <lay-col lg="16" md="16" sm="12" xs="24">
+          <lay-card title="工资趋势" :bordered="false">
+            <div ref="trendChartRef" class="chart-container"></div>
+          </lay-card>
+        </lay-col>
+        <lay-col lg="8" md="8" sm="6" xs="12">
+          <lay-card title="收入构成" :bordered="false">
+            <div ref="pieChartRef" class="chart-container"></div>
+          </lay-card>
+        </lay-col>
+      </lay-row>
+
+      <lay-card title="工资记录" :bordered="false">
+        <template #extra>
+          <lay-space :size="12">
+            <lay-input 
+              v-model="searchText" 
+              placeholder="搜索月份、备注..." 
+              size="small"
+              style="width: 200px"
+              @keyup.enter="handleSearch"
+            />
+            <lay-button size="small" @click="handleSearch">
+              <i class="layui-icon layui-icon-search"></i>
+            </lay-button>
+          </lay-space>
+        </template>
+
+        <lay-table 
+          :columns="columns" 
+          :data-source="paginatedSalaries" 
+          :pagination="false"
+        >
+          <template #baseSalary="{ row }">
+            <span class="text-success">¥{{ formatMoney(row.baseSalary) }}</span>
+          </template>
+          <template #bonus="{ row }">
+            <span class="text-success">¥{{ formatMoney(row.bonus) }}</span>
+          </template>
+          <template #deduction="{ row }">
+            <span class="text-danger">-¥{{ formatMoney(row.deduction) }}</span>
+          </template>
+          <template #netSalary="{ row }">
+            <span class="text-primary" style="font-weight: bold;">¥{{ formatMoney(row.netSalary) }}</span>
+          </template>
+          <template #operator="{ row }">
+            <lay-button size="small" @click="editSalary(row)">
+              <i class="layui-icon layui-icon-edit"></i>
+            </lay-button>
+            <lay-button size="small" type="danger" @click="deleteSalary(row)">
+              <i class="layui-icon layui-icon-delete"></i>
+            </lay-button>
+          </template>
+        </lay-table>
+
+        <div class="pagination">
+          <div class="pagination-info">共 {{ totalSalaries }} 条，第 {{ currentPage }} 页</div>
+          <lay-space :size="8">
+            <lay-button size="small" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">上一页</lay-button>
+            <lay-button 
+              v-for="page in displayPages" 
+              :key="page"
+              size="small"
+              :type="page === currentPage ? 'normal' : 'default'"
+              @click="changePage(page)"
+            >
+              {{ page }}
+            </lay-button>
+            <lay-button size="small" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">下一页</lay-button>
+          </lay-space>
         </div>
-        <div class="modal-body">
-          <table class="layui-table">
-            <thead>
-              <tr>
-                <th>月份</th>
-                <th>姓名</th>
-                <th>养老保险</th>
-                <th>医疗保险</th>
-                <th>失业保险</th>
-                <th>工伤保险</th>
-                <th>生育保险</th>
-                <th>合计</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="item in securityData" :key="item.id">
-                <td>{{ item.month }}</td>
-                <td>{{ item.name }}</td>
-                <td>¥ {{ item.pension }}</td>
-                <td>¥ {{ item.medical }}</td>
-                <td>¥ {{ item.unemployment }}</td>
-                <td>¥ {{ item.injury }}</td>
-                <td>¥ {{ item.maternity }}</td>
-                <td class="text-danger">¥ {{ item.total }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+      </lay-card>
+    </lay-space>
+
+    <lay-layer v-model="showSalaryModal" :title="editMode ? '编辑工资' : '添加工资'" :area="['600px', 'auto']">
+      <lay-form :model="salaryForm" :label-width="80" style="padding: 8px 0;">
+        <lay-row :gutter="[16, 0]">
+          <lay-col lg="12" md="12" sm="6" xs="12">
+            <lay-form-item label="月份" required>
+              <lay-input v-model="salaryForm.month" type="month" />
+            </lay-form-item>
+          </lay-col>
+          <lay-col lg="12" md="12" sm="6" xs="12">
+            <lay-form-item label="发放日期">
+              <lay-input v-model="salaryForm.payDate" type="date" />
+            </lay-form-item>
+          </lay-col>
+        </lay-row>
+        <lay-row :gutter="[16, 0]">
+          <lay-col lg="8" md="8" sm="6" xs="12">
+            <lay-form-item label="基本工资" required>
+              <lay-input v-model="salaryForm.baseSalary" type="number" placeholder="0.00" />
+            </lay-form-item>
+          </lay-col>
+          <lay-col lg="8" md="8" sm="6" xs="12">
+            <lay-form-item label="绩效奖金">
+              <lay-input v-model="salaryForm.bonus" type="number" placeholder="0.00" />
+            </lay-form-item>
+          </lay-col>
+          <lay-col lg="8" md="8" sm="6" xs="12">
+            <lay-form-item label="扣款">
+              <lay-input v-model="salaryForm.deduction" type="number" placeholder="0.00" />
+            </lay-form-item>
+          </lay-col>
+        </lay-row>
+        <lay-form-item label="实发工资">
+          <lay-input 
+            :value="formatMoney(calculateActualSalary)" 
+            disabled 
+            style="background: #f5f5f5; font-weight: 600;"
+          />
+        </lay-form-item>
+        <lay-form-item label="备注">
+          <lay-textarea v-model="salaryForm.remark" placeholder="请输入备注信息" :rows="3" />
+        </lay-form-item>
+      </lay-form>
+      <template #footer>
+        <lay-button @click="showSalaryModal = false">取消</lay-button>
+        <lay-button type="normal" @click="submitSalary">确认保存</lay-button>
+      </template>
+    </lay-layer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive, nextTick, onMounted } from 'vue'
+import { ref, computed, reactive, nextTick, onMounted, onUnmounted } from 'vue'
 import * as echarts from 'echarts'
-declare const layui: any
+import {
+  LaySpace, LayRow, LayCol, LayCard, LayButton, LayTable,
+  LayInput, LayTextarea, LayForm
+} from '@layui/layui-vue'
+import { LayLayer, layer } from '@layui/layer-vue'
 
 const message = {
-  success: (msg: string) => layui.layer.msg(msg, { icon: 1, time: 2000 }),
-  info: (msg: string) => layui.layer.msg(msg, { icon: 0, time: 2000 }),
-  warning: (msg: string) => layui.layer.msg(msg, { icon: 2, time: 2000 }),
-  error: (msg: string) => layui.layer.msg(msg, { icon: 3, time: 2000 })
+  success: (msg: string) => layer.msg(msg, { icon: 1, time: 2000 }),
+  warning: (msg: string) => layer.msg(msg, { icon: 2, time: 2000 })
 }
 
-const showModal = ref(false)
-const showSecurityModal = ref(false)
-const editMode = ref(false)
-const selectAll = ref(false)
-const selectedIds = ref<number[]>([])
+const columns = ref([
+  { title: '月份', key: 'month', width: '120px' },
+  { title: '基本工资', key: 'baseSalary', width: '100px', customSlot: 'baseSalary' },
+  { title: '绩效奖金', key: 'bonus', width: '100px', customSlot: 'bonus' },
+  { title: '补贴', key: 'allowance', width: '100px' },
+  { title: '扣除', key: 'deduction', width: '100px', customSlot: 'deduction' },
+  { title: '实发工资', key: 'netSalary', width: '120px', customSlot: 'netSalary' },
+  { title: '发放状态', key: 'status', width: '100px' },
+  { title: '操作', key: 'operator', width: '150px', fixed: 'right', customSlot: 'operator' }
+])
+
+const trendChartRef = ref<HTMLElement | null>(null)
+const pieChartRef = ref<HTMLElement | null>(null)
+let trendChart: echarts.ECharts | null = null
+let pieChart: echarts.ECharts | null = null
+
+const searchText = ref('')
 const currentPage = ref(1)
 const pageSize = ref(10)
+const showSalaryModal = ref(false)
+const editMode = ref(false)
 
-const trendChartRef = ref<HTMLElement>()
-const pieChartRef = ref<HTMLElement>()
-
-const familyMembers = ref([
-  { id: 1, name: '张三' },
-  { id: 2, name: '李四' },
-  { id: 3, name: '张小明' }
-])
-
-const companies = ref([
-  { id: 1, name: 'XX 科技有限公司' },
-  { id: 2, name: 'XX 咨询有限公司' },
-  { id: 3, name: '自由职业' }
-])
-
-const filters = reactive({
+const salaryForm = reactive({
   month: '',
-  member: '',
-  company: ''
-})
-
-const form = reactive({
-  month: '',
-  name: '',
-  company: '',
-  department: '',
+  payDate: '',
   baseSalary: '',
-  performance: '',
-  allowance: '',
-  overtime: '',
-  socialSecurity: '',
-  housingFund: '',
-  tax: '',
-  otherDeduction: ''
+  bonus: '0',
+  deduction: '0',
+  remark: ''
 })
 
 const salaries = ref([
-  { 
-    id: 1, 
-    name: '张三2', 
-    month: '2026-01',
-    company: '北京2信息技术公司',
-    position: '产品经理',
-    baseSalary: 8500,
-    performance: 700,
-    subsidy: 400,
-    overtime: 200,
-    grossTotal: 9800,
-    socialSecurity: 850,
-    housingFund: 1100,
-    tax: 85,
-    totalDeduction: 2035,
-    netSalary: 7764,
-    status: '已发布',
-    publishDate: '2026-01-15'
-  },
-  { 
-    id: 2, 
-    name: '张三3', 
-    month: '2026-02',
-    company: '北京3软件开发公司',
-    position: '设计师',
-    baseSalary: 9000,
-    performance: 900,
-    subsidy: 500,
-    overtime: 400,
-    grossTotal: 10800,
-    socialSecurity: 900,
-    housingFund: 1200,
-    tax: 111,
-    totalDeduction: 2211,
-    netSalary: 8589,
-    status: '已发布',
-    publishDate: '2026-02-15'
-  },
-  { 
-    id: 3, 
-    name: '张三1', 
-    month: '2026-03',
-    company: '北京4网络服务公司',
-    position: '运营专员',
-    baseSalary: 9500,
-    performance: 1100,
-    subsidy: 300,
-    overtime: 600,
-    grossTotal: 11500,
-    socialSecurity: 950,
-    housingFund: 1000,
-    tax: 136,
-    totalDeduction: 2086,
-    netSalary: 9413,
-    status: '已发布',
-    publishDate: '2026-03-15'
-  },
-  { 
-    id: 4, 
-    name: '张三2', 
-    month: '2026-04',
-    company: '北京5数据服务公司',
-    position: '测试工程师',
-    baseSalary: 10000,
-    performance: 1300,
-    subsidy: 400,
-    overtime: 0,
-    grossTotal: 11700,
-    socialSecurity: 1000,
-    housingFund: 1100,
-    tax: 138,
-    totalDeduction: 2238,
-    netSalary: 9462,
-    status: '已发布',
-    publishDate: '2026-04-15'
-  },
-  { 
-    id: 5, 
-    name: '张三3', 
-    month: '2026-05',
-    company: '北京1科技有限公司',
-    position: '软件工程师',
-    baseSalary: 10500,
-    performance: 500,
-    subsidy: 500,
-    overtime: 200,
-    grossTotal: 11700,
-    socialSecurity: 800,
-    housingFund: 1200,
-    tax: 141,
-    totalDeduction: 2141,
-    netSalary: 9559,
-    status: '草稿',
-    publishDate: ''
-  },
-  { 
-    id: 6, 
-    name: '张三1', 
-    month: '2026-06',
-    company: '北京2信息技术公司',
-    position: '产品经理',
-    baseSalary: 11000,
-    performance: 700,
-    subsidy: 300,
-    overtime: 400,
-    grossTotal: 12400,
-    socialSecurity: 850,
-    housingFund: 1000,
-    tax: 166,
-    totalDeduction: 2016,
-    netSalary: 10383,
-    status: '已发布',
-    publishDate: '2026-06-15'
-  },
-  { 
-    id: 7, 
-    name: '张三2', 
-    month: '2026-07',
-    company: '北京3软件开发公司',
-    position: '设计师',
-    baseSalary: 11500,
-    performance: 900,
-    subsidy: 400,
-    overtime: 600,
-    grossTotal: 13400,
-    socialSecurity: 900,
-    housingFund: 1100,
-    tax: 192,
-    totalDeduction: 2192,
-    netSalary: 11208,
-    status: '已发布',
-    publishDate: '2026-07-15'
-  },
-  { 
-    id: 8, 
-    name: '张三3', 
-    month: '2026-08',
-    company: '北京4网络服务公司',
-    position: '运营专员',
-    baseSalary: 12000,
-    performance: 1100,
-    subsidy: 500,
-    overtime: 0,
-    grossTotal: 13600,
-    socialSecurity: 950,
-    housingFund: 1200,
-    tax: 193,
-    totalDeduction: 2343,
-    netSalary: 11256,
-    status: '已发布',
-    publishDate: '2026-08-15'
-  },
-  { 
-    id: 9, 
-    name: '张三1', 
-    month: '2026-09',
-    company: '北京5数据服务公司',
-    position: '测试工程师',
-    baseSalary: 12500,
-    performance: 1300,
-    subsidy: 300,
-    overtime: 200,
-    grossTotal: 14300,
-    socialSecurity: 1000,
-    housingFund: 1000,
-    tax: 219,
-    totalDeduction: 2219,
-    netSalary: 12081,
-    status: '已发布',
-    publishDate: '2026-09-15'
-  },
-  { 
-    id: 10, 
-    name: '张三2', 
-    month: '2026-10',
-    company: '北京1科技有限公司',
-    position: '软件工程师',
-    baseSalary: 8000,
-    performance: 500,
-    subsidy: 400,
-    overtime: 400,
-    grossTotal: 9300,
-    socialSecurity: 800,
-    housingFund: 1100,
-    tax: 72,
-    totalDeduction: 1972,
-    netSalary: 7328,
-    status: '草稿',
-    publishDate: ''
-  },
-  { 
-    id: 11, 
-    name: '张三3', 
-    month: '2026-11',
-    company: '北京2信息技术公司',
-    position: '产品经理',
-    baseSalary: 8500,
-    performance: 700,
-    subsidy: 500,
-    overtime: 600,
-    grossTotal: 10300,
-    socialSecurity: 850,
-    housingFund: 1200,
-    tax: 97,
-    totalDeduction: 2147,
-    netSalary: 8152,
-    status: '已发布',
-    publishDate: '2026-11-15'
-  },
-  { 
-    id: 12, 
-    name: '张三1', 
-    month: '2026-12',
-    company: '北京3软件开发公司',
-    position: '设计师',
-    baseSalary: 9000,
-    performance: 900,
-    subsidy: 300,
-    overtime: 0,
-    grossTotal: 10200,
-    socialSecurity: 900,
-    housingFund: 1000,
-    tax: 99,
-    totalDeduction: 1999,
-    netSalary: 8201,
-    status: '已发布',
-    publishDate: '2026-12-15'
-  },
-  { 
-    id: 13, 
-    name: '员工13', 
-    month: '2026-01',
-    company: '北京4网络服务公司',
-    position: '运营专员',
-    baseSalary: 9500,
-    performance: 1100,
-    subsidy: 400,
-    overtime: 200,
-    grossTotal: 11200,
-    socialSecurity: 950,
-    housingFund: 1100,
-    tax: 124,
-    totalDeduction: 2174,
-    netSalary: 9025,
-    status: '已发布',
-    publishDate: '2026-01-15'
-  },
-  { 
-    id: 14, 
-    name: '员工14', 
-    month: '2026-02',
-    company: '北京5数据服务公司',
-    position: '测试工程师',
-    baseSalary: 10000,
-    performance: 1300,
-    subsidy: 500,
-    overtime: 400,
-    grossTotal: 12200,
-    socialSecurity: 1000,
-    housingFund: 1200,
-    tax: 150,
-    totalDeduction: 2350,
-    netSalary: 9850,
-    status: '已发布',
-    publishDate: '2026-02-15'
-  },
-  { 
-    id: 15, 
-    name: '员工15', 
-    month: '2026-03',
-    company: '北京1科技有限公司',
-    position: '软件工程师',
-    baseSalary: 10500,
-    performance: 500,
-    subsidy: 300,
-    overtime: 600,
-    grossTotal: 11900,
-    socialSecurity: 800,
-    housingFund: 1000,
-    tax: 153,
-    totalDeduction: 1953,
-    netSalary: 9947,
-    status: '草稿',
-    publishDate: ''
-  },
-  { 
-    id: 16, 
-    name: '员工16', 
-    month: '2026-04',
-    company: '北京2信息技术公司',
-    position: '产品经理',
-    baseSalary: 11000,
-    performance: 700,
-    subsidy: 400,
-    overtime: 0,
-    grossTotal: 12100,
-    socialSecurity: 850,
-    housingFund: 1100,
-    tax: 154,
-    totalDeduction: 2104,
-    netSalary: 9995,
-    status: '已发布',
-    publishDate: '2026-04-15'
-  },
-  { 
-    id: 17, 
-    name: '员工17', 
-    month: '2026-05',
-    company: '北京3软件开发公司',
-    position: '设计师',
-    baseSalary: 11500,
-    performance: 900,
-    subsidy: 500,
-    overtime: 200,
-    grossTotal: 13100,
-    socialSecurity: 900,
-    housingFund: 1200,
-    tax: 180,
-    totalDeduction: 2280,
-    netSalary: 10820,
-    status: '已发布',
-    publishDate: '2026-05-15'
-  },
-  { 
-    id: 18, 
-    name: '员工18', 
-    month: '2026-06',
-    company: '北京4网络服务公司',
-    position: '运营专员',
-    baseSalary: 12000,
-    performance: 1100,
-    subsidy: 300,
-    overtime: 400,
-    grossTotal: 13800,
-    socialSecurity: 950,
-    housingFund: 1000,
-    tax: 205,
-    totalDeduction: 2155,
-    netSalary: 11644,
-    status: '已发布',
-    publishDate: '2026-06-15'
-  },
-  { 
-    id: 19, 
-    name: '员工19', 
-    month: '2026-07',
-    company: '北京5数据服务公司',
-    position: '测试工程师',
-    baseSalary: 12500,
-    performance: 1300,
-    subsidy: 400,
-    overtime: 600,
-    grossTotal: 14800,
-    socialSecurity: 1000,
-    housingFund: 1100,
-    tax: 231,
-    totalDeduction: 2331,
-    netSalary: 12469,
-    status: '已发布',
-    publishDate: '2026-07-15'
-  },
-  { 
-    id: 20, 
-    name: '员工20', 
-    month: '2026-08',
-    company: '北京1科技有限公司',
-    position: '软件工程师',
-    baseSalary: 8000,
-    performance: 500,
-    subsidy: 500,
-    overtime: 0,
-    grossTotal: 9000,
-    socialSecurity: 800,
-    housingFund: 1200,
-    tax: 60,
-    totalDeduction: 2060,
-    netSalary: 6940,
-    status: '草稿',
-    publishDate: ''
-  },
-  { 
-    id: 21, 
-    name: '员工21', 
-    month: '2026-09',
-    company: '北京2信息技术公司',
-    position: '产品经理',
-    baseSalary: 8500,
-    performance: 700,
-    subsidy: 300,
-    overtime: 200,
-    grossTotal: 9700,
-    socialSecurity: 850,
-    housingFund: 1000,
-    tax: 85,
-    totalDeduction: 1935,
-    netSalary: 7764,
-    status: '已发布',
-    publishDate: '2026-09-15'
-  },
-  { 
-    id: 22, 
-    name: '员工22', 
-    month: '2026-10',
-    company: '北京3软件开发公司',
-    position: '设计师',
-    baseSalary: 9000,
-    performance: 900,
-    subsidy: 400,
-    overtime: 400,
-    grossTotal: 10700,
-    socialSecurity: 900,
-    housingFund: 1100,
-    tax: 111,
-    totalDeduction: 2111,
-    netSalary: 8589,
-    status: '已发布',
-    publishDate: '2026-10-15'
-  },
-  { 
-    id: 23, 
-    name: '员工23', 
-    month: '2026-11',
-    company: '北京4网络服务公司',
-    position: '运营专员',
-    baseSalary: 9500,
-    performance: 1100,
-    subsidy: 500,
-    overtime: 600,
-    grossTotal: 11700,
-    socialSecurity: 950,
-    housingFund: 1200,
-    tax: 136,
-    totalDeduction: 2286,
-    netSalary: 9413,
-    status: '已发布',
-    publishDate: '2026-11-15'
-  },
-  { 
-    id: 24, 
-    name: '员工24', 
-    month: '2026-12',
-    company: '北京5数据服务公司',
-    position: '测试工程师',
-    baseSalary: 10000,
-    performance: 1300,
-    subsidy: 300,
-    overtime: 0,
-    grossTotal: 11600,
-    socialSecurity: 1000,
-    housingFund: 1000,
-    tax: 138,
-    totalDeduction: 2138,
-    netSalary: 9462,
-    status: '已发布',
-    publishDate: '2026-12-15'
-  },
-  { 
-    id: 25, 
-    name: '员工25', 
-    month: '2026-01',
-    company: '北京1科技有限公司',
-    position: '软件工程师',
-    baseSalary: 10500,
-    performance: 500,
-    subsidy: 400,
-    overtime: 200,
-    grossTotal: 11600,
-    socialSecurity: 800,
-    housingFund: 1100,
-    tax: 141,
-    totalDeduction: 2041,
-    netSalary: 9559,
-    status: '草稿',
-    publishDate: ''
-  },
-  { 
-    id: 26, 
-    name: '员工26', 
-    month: '2026-02',
-    company: '北京2信息技术公司',
-    position: '产品经理',
-    baseSalary: 11000,
-    performance: 700,
-    subsidy: 500,
-    overtime: 400,
-    grossTotal: 12600,
-    socialSecurity: 850,
-    housingFund: 1200,
-    tax: 166,
-    totalDeduction: 2216,
-    netSalary: 10383,
-    status: '已发布',
-    publishDate: '2026-02-15'
-  },
-  { 
-    id: 27, 
-    name: '员工27', 
-    month: '2026-03',
-    company: '北京3软件开发公司',
-    position: '设计师',
-    baseSalary: 11500,
-    performance: 900,
-    subsidy: 300,
-    overtime: 600,
-    grossTotal: 13300,
-    socialSecurity: 900,
-    housingFund: 1000,
-    tax: 192,
-    totalDeduction: 2092,
-    netSalary: 11208,
-    status: '已发布',
-    publishDate: '2026-03-15'
-  },
-  { 
-    id: 28, 
-    name: '员工28', 
-    month: '2026-04',
-    company: '北京4网络服务公司',
-    position: '运营专员',
-    baseSalary: 12000,
-    performance: 1100,
-    subsidy: 400,
-    overtime: 0,
-    grossTotal: 13500,
-    socialSecurity: 950,
-    housingFund: 1100,
-    tax: 193,
-    totalDeduction: 2243,
-    netSalary: 11256,
-    status: '已发布',
-    publishDate: '2026-04-15'
-  },
-  { 
-    id: 29, 
-    name: '员工29', 
-    month: '2026-05',
-    company: '北京5数据服务公司',
-    position: '测试工程师',
-    baseSalary: 12500,
-    performance: 1300,
-    subsidy: 500,
-    overtime: 200,
-    grossTotal: 14500,
-    socialSecurity: 1000,
-    housingFund: 1200,
-    tax: 219,
-    totalDeduction: 2419,
-    netSalary: 12081,
-    status: '已发布',
-    publishDate: '2026-05-15'
-  },
-  { 
-    id: 30, 
-    name: '员工30', 
-    month: '2026-06',
-    company: '北京1科技有限公司',
-    position: '软件工程师',
-    baseSalary: 8000,
-    performance: 500,
-    subsidy: 300,
-    overtime: 400,
-    grossTotal: 9200,
-    socialSecurity: 800,
-    housingFund: 1000,
-    tax: 72,
-    totalDeduction: 1872,
-    netSalary: 7328,
-    status: '草稿',
-    publishDate: ''
-  },
-  { 
-    id: 31, 
-    name: '员工31', 
-    month: '2026-07',
-    company: '北京2信息技术公司',
-    position: '产品经理',
-    baseSalary: 8500,
-    performance: 700,
-    subsidy: 400,
-    overtime: 600,
-    grossTotal: 10200,
-    socialSecurity: 850,
-    housingFund: 1100,
-    tax: 97,
-    totalDeduction: 2047,
-    netSalary: 8152,
-    status: '已发布',
-    publishDate: '2026-07-15'
-  },
-  { 
-    id: 32, 
-    name: '员工32', 
-    month: '2026-08',
-    company: '北京3软件开发公司',
-    position: '设计师',
-    baseSalary: 9000,
-    performance: 900,
-    subsidy: 500,
-    overtime: 0,
-    grossTotal: 10400,
-    socialSecurity: 900,
-    housingFund: 1200,
-    tax: 99,
-    totalDeduction: 2199,
-    netSalary: 8201,
-    status: '已发布',
-    publishDate: '2026-08-15'
-  },
-  { 
-    id: 33, 
-    name: '员工33', 
-    month: '2026-09',
-    company: '北京4网络服务公司',
-    position: '运营专员',
-    baseSalary: 9500,
-    performance: 1100,
-    subsidy: 300,
-    overtime: 200,
-    grossTotal: 11100,
-    socialSecurity: 950,
-    housingFund: 1000,
-    tax: 124,
-    totalDeduction: 2074,
-    netSalary: 9025,
-    status: '已发布',
-    publishDate: '2026-09-15'
-  },
-  { 
-    id: 34, 
-    name: '员工34', 
-    month: '2026-10',
-    company: '北京5数据服务公司',
-    position: '测试工程师',
-    baseSalary: 10000,
-    performance: 1300,
-    subsidy: 400,
-    overtime: 400,
-    grossTotal: 12100,
-    socialSecurity: 1000,
-    housingFund: 1100,
-    tax: 150,
-    totalDeduction: 2250,
-    netSalary: 9850,
-    status: '已发布',
-    publishDate: '2026-10-15'
-  },
-  { 
-    id: 35, 
-    name: '员工35', 
-    month: '2026-11',
-    company: '北京1科技有限公司',
-    position: '软件工程师',
-    baseSalary: 10500,
-    performance: 500,
-    subsidy: 500,
-    overtime: 600,
-    grossTotal: 12100,
-    socialSecurity: 800,
-    housingFund: 1200,
-    tax: 153,
-    totalDeduction: 2153,
-    netSalary: 9947,
-    status: '草稿',
-    publishDate: ''
-  },
-  { 
-    id: 36, 
-    name: '员工36', 
-    month: '2026-12',
-    company: '北京2信息技术公司',
-    position: '产品经理',
-    baseSalary: 11000,
-    performance: 700,
-    subsidy: 300,
-    overtime: 0,
-    grossTotal: 12000,
-    socialSecurity: 850,
-    housingFund: 1000,
-    tax: 154,
-    totalDeduction: 2004,
-    netSalary: 9995,
-    status: '已发布',
-    publishDate: '2026-12-15'
-  },
-  { 
-    id: 37, 
-    name: '员工37', 
-    month: '2026-01',
-    company: '北京3软件开发公司',
-    position: '设计师',
-    baseSalary: 11500,
-    performance: 900,
-    subsidy: 400,
-    overtime: 200,
-    grossTotal: 13000,
-    socialSecurity: 900,
-    housingFund: 1100,
-    tax: 180,
-    totalDeduction: 2180,
-    netSalary: 10820,
-    status: '已发布',
-    publishDate: '2026-01-15'
-  },
-  { 
-    id: 38, 
-    name: '员工38', 
-    month: '2026-02',
-    company: '北京4网络服务公司',
-    position: '运营专员',
-    baseSalary: 12000,
-    performance: 1100,
-    subsidy: 500,
-    overtime: 400,
-    grossTotal: 14000,
-    socialSecurity: 950,
-    housingFund: 1200,
-    tax: 205,
-    totalDeduction: 2355,
-    netSalary: 11644,
-    status: '已发布',
-    publishDate: '2026-02-15'
-  },
-  { 
-    id: 39, 
-    name: '员工39', 
-    month: '2026-03',
-    company: '北京5数据服务公司',
-    position: '测试工程师',
-    baseSalary: 12500,
-    performance: 1300,
-    subsidy: 300,
-    overtime: 600,
-    grossTotal: 14700,
-    socialSecurity: 1000,
-    housingFund: 1000,
-    tax: 231,
-    totalDeduction: 2231,
-    netSalary: 12469,
-    status: '已发布',
-    publishDate: '2026-03-15'
-  },
-  { 
-    id: 40, 
-    name: '员工40', 
-    month: '2026-04',
-    company: '北京1科技有限公司',
-    position: '软件工程师',
-    baseSalary: 8000,
-    performance: 500,
-    subsidy: 400,
-    overtime: 0,
-    grossTotal: 8900,
-    socialSecurity: 800,
-    housingFund: 1100,
-    tax: 60,
-    totalDeduction: 1960,
-    netSalary: 6940,
-    status: '草稿',
-    publishDate: ''
-  },
-  { 
-    id: 41, 
-    name: '员工41', 
-    month: '2026-05',
-    company: '北京2信息技术公司',
-    position: '产品经理',
-    baseSalary: 8500,
-    performance: 700,
-    subsidy: 500,
-    overtime: 200,
-    grossTotal: 9900,
-    socialSecurity: 850,
-    housingFund: 1200,
-    tax: 85,
-    totalDeduction: 2135,
-    netSalary: 7764,
-    status: '已发布',
-    publishDate: '2026-05-15'
-  },
-  { 
-    id: 42, 
-    name: '员工42', 
-    month: '2026-06',
-    company: '北京3软件开发公司',
-    position: '设计师',
-    baseSalary: 9000,
-    performance: 900,
-    subsidy: 300,
-    overtime: 400,
-    grossTotal: 10600,
-    socialSecurity: 900,
-    housingFund: 1000,
-    tax: 111,
-    totalDeduction: 2011,
-    netSalary: 8589,
-    status: '已发布',
-    publishDate: '2026-06-15'
-  },
-  { 
-    id: 43, 
-    name: '员工43', 
-    month: '2026-07',
-    company: '北京4网络服务公司',
-    position: '运营专员',
-    baseSalary: 9500,
-    performance: 1100,
-    subsidy: 400,
-    overtime: 600,
-    grossTotal: 11600,
-    socialSecurity: 950,
-    housingFund: 1100,
-    tax: 136,
-    totalDeduction: 2186,
-    netSalary: 9413,
-    status: '已发布',
-    publishDate: '2026-07-15'
-  },
-  { 
-    id: 44, 
-    name: '员工44', 
-    month: '2026-08',
-    company: '北京5数据服务公司',
-    position: '测试工程师',
-    baseSalary: 10000,
-    performance: 1300,
-    subsidy: 500,
-    overtime: 0,
-    grossTotal: 11800,
-    socialSecurity: 1000,
-    housingFund: 1200,
-    tax: 138,
-    totalDeduction: 2338,
-    netSalary: 9462,
-    status: '已发布',
-    publishDate: '2026-08-15'
-  },
-  { 
-    id: 45, 
-    name: '员工45', 
-    month: '2026-09',
-    company: '北京1科技有限公司',
-    position: '软件工程师',
-    baseSalary: 10500,
-    performance: 500,
-    subsidy: 300,
-    overtime: 200,
-    grossTotal: 11500,
-    socialSecurity: 800,
-    housingFund: 1000,
-    tax: 141,
-    totalDeduction: 1941,
-    netSalary: 9559,
-    status: '草稿',
-    publishDate: ''
-  },
-  { 
-    id: 46, 
-    name: '员工46', 
-    month: '2026-10',
-    company: '北京2信息技术公司',
-    position: '产品经理',
-    baseSalary: 11000,
-    performance: 700,
-    subsidy: 400,
-    overtime: 400,
-    grossTotal: 12500,
-    socialSecurity: 850,
-    housingFund: 1100,
-    tax: 166,
-    totalDeduction: 2116,
-    netSalary: 10383,
-    status: '已发布',
-    publishDate: '2026-10-15'
-  },
-  { 
-    id: 47, 
-    name: '员工47', 
-    month: '2026-11',
-    company: '北京3软件开发公司',
-    position: '设计师',
-    baseSalary: 11500,
-    performance: 900,
-    subsidy: 500,
-    overtime: 600,
-    grossTotal: 13500,
-    socialSecurity: 900,
-    housingFund: 1200,
-    tax: 192,
-    totalDeduction: 2292,
-    netSalary: 11208,
-    status: '已发布',
-    publishDate: '2026-11-15'
-  },
-  { 
-    id: 48, 
-    name: '员工48', 
-    month: '2026-12',
-    company: '北京4网络服务公司',
-    position: '运营专员',
-    baseSalary: 12000,
-    performance: 1100,
-    subsidy: 300,
-    overtime: 0,
-    grossTotal: 13400,
-    socialSecurity: 950,
-    housingFund: 1000,
-    tax: 193,
-    totalDeduction: 2143,
-    netSalary: 11256,
-    status: '已发布',
-    publishDate: '2026-12-15'
-  },
-  { 
-    id: 49, 
-    name: '员工49', 
-    month: '2026-01',
-    company: '北京5数据服务公司',
-    position: '测试工程师',
-    baseSalary: 12500,
-    performance: 1300,
-    subsidy: 400,
-    overtime: 200,
-    grossTotal: 14400,
-    socialSecurity: 1000,
-    housingFund: 1100,
-    tax: 219,
-    totalDeduction: 2319,
-    netSalary: 12081,
-    status: '已发布',
-    publishDate: '2026-01-15'
-  },
-  { 
-    id: 50, 
-    name: '员工50', 
-    month: '2026-02',
-    company: '北京1科技有限公司',
-    position: '软件工程师',
-    baseSalary: 8000,
-    performance: 500,
-    subsidy: 500,
-    overtime: 400,
-    grossTotal: 9400,
-    socialSecurity: 800,
-    housingFund: 1200,
-    tax: 72,
-    totalDeduction: 2072,
-    netSalary: 7328,
-    status: '草稿',
-    publishDate: ''
-  }
+  { id: 1, month: '2026-05', baseSalary: 8500, bonus: 0, deduction: 0, actualSalary: 8500, payDate: '2026-05-20', remark: '正常发放' },
+  { id: 2, month: '2026-04', baseSalary: 8500, bonus: 500, deduction: 0, actualSalary: 9000, payDate: '2026-04-20', remark: '季度绩效' },
+  { id: 3, month: '2026-03', baseSalary: 8500, bonus: 0, deduction: 100, actualSalary: 8400, payDate: '2026-03-20', remark: '事假扣款' },
+  { id: 4, month: '2026-02', baseSalary: 8500, bonus: 0, deduction: 0, actualSalary: 8500, payDate: '2026-02-20', remark: '' },
+  { id: 5, month: '2026-01', baseSalary: 8500, bonus: 2000, deduction: 0, actualSalary: 10500, payDate: '2026-01-25', remark: '年终奖' },
+  { id: 6, month: '2025-12', baseSalary: 8500, bonus: 0, deduction: 0, actualSalary: 8500, payDate: '2025-12-20', remark: '' },
+  { id: 7, month: '2025-11', baseSalary: 8500, bonus: 0, deduction: 0, actualSalary: 8500, payDate: '2025-11-20', remark: '' },
+  { id: 8, month: '2025-10', baseSalary: 8500, bonus: 800, deduction: 0, actualSalary: 9300, payDate: '2025-10-20', remark: '项目奖金' },
 ])
 
-const securityData = ref([
-  { id: 1, month: '2026-05', name: '张三', pension: 640, medical: 160, unemployment: 40, injury: 0, maternity: 0, total: 840 },
-  { id: 2, month: '2026-05', name: '李四', pension: 320, medical: 130, unemployment: 40, injury: 0, maternity: 40, total: 530 }
-])
-
-const filteredSalaries = computed(() => {
-  return salaries.value.filter(s => {
-    if (filters.month && s.month !== filters.month) return false
-    if (filters.member && s.name !== filters.member) return false
-    if (filters.company && s.company !== filters.company) return false
-    return true
-  })
+const calculateActualSalary = computed(() => {
+  const base = parseFloat(salaryForm.baseSalary) || 0
+  const bonus = parseFloat(salaryForm.bonus) || 0
+  const deduction = parseFloat(salaryForm.deduction) || 0
+  return base + bonus - deduction
 })
 
-const totalRecords = computed(() => filteredSalaries.value.length)
-const totalPages = computed(() => Math.ceil(totalRecords.value / pageSize.value))
+const filteredSalaries = computed(() => {
+  return salaries.value.filter(salary => {
+    if (!searchText.value) return true
+    const search = searchText.value.toLowerCase()
+    return salary.month.toLowerCase().includes(search) || 
+           (salary.remark && salary.remark.toLowerCase().includes(search))
+})
+})
+
+const totalSalaries = computed(() => filteredSalaries.value.length)
+const totalPages = computed(() => Math.ceil(totalSalaries.value / pageSize.value))
 
 const paginatedSalaries = computed(() => {
   const start = (currentPage.value - 1) * pageSize.value
@@ -1330,213 +281,205 @@ const paginatedSalaries = computed(() => {
 
 const displayPages = computed(() => {
   const pages: number[] = []
-  const maxVisible = 5
-  let start = Math.max(1, currentPage.value - 2)
-  let end = Math.min(totalPages.value, start + maxVisible - 1)
-  
-  if (end - start < maxVisible - 1) {
-    start = Math.max(1, end - maxVisible + 1)
-  }
-  
-  for (let i = start; i <= end; i++) {
-    pages.push(i)
-  }
+  const start = Math.max(1, currentPage.value - 2)
+  const end = Math.min(totalPages.value, start + 4)
+  for (let i = start; i <= end; i++) pages.push(i)
   return pages
 })
 
-const summary = computed(() => {
-  const list = filteredSalaries.value
-  return {
-    grossTotal: list.reduce((sum, s) => sum + s.gross, 0).toLocaleString('zh-CN', { minimumFractionDigits: 2 }),
-    netTotal: list.reduce((sum, s) => sum + s.net, 0).toLocaleString('zh-CN', { minimumFractionDigits: 2 }),
-    housingFundTotal: list.reduce((sum, s) => sum + s.housingFund, 0).toLocaleString('zh-CN', { minimumFractionDigits: 2 }),
-    socialSecurityTotal: list.reduce((sum, s) => sum + s.socialSecurity, 0).toLocaleString('zh-CN', { minimumFractionDigits: 2 })
-  }
-})
-
-const calculateGross = () => {
-  return (parseFloat(form.baseSalary || 0) + parseFloat(form.performance || 0) + 
-          parseFloat(form.allowance || 0) + parseFloat(form.overtime || 0))
+const formatMoney = (amount: number | string | undefined | null) => {
+  if (amount === undefined || amount === null || amount === '') return '0.00'
+  return Number(amount).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
-const calculateNet = () => {
-  const gross = calculateGross()
-  const deductions = (parseFloat(form.socialSecurity || 0) + parseFloat(form.housingFund || 0) + 
-                      parseFloat(form.tax || 0) + parseFloat(form.otherDeduction || 0))
-  return gross - deductions
-}
-
-const calculateTotal = () => {
-  form.gross = calculateGross()
-  form.net = calculateNet()
-}
-
-const formatNumber = (num: number | string) => {
-  return Number(num).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-}
-
-const showAddModal = () => {
+const showAddSalary = () => {
   editMode.value = false
-  Object.keys(form).forEach(key => (form as any)[key] = '')
-  form.month = new Date().toISOString().slice(0, 7)
-  showModal.value = true
+  Object.assign(salaryForm, {
+    month: new Date().toISOString().slice(0, 7),
+    payDate: new Date().toISOString().split('T')[0],
+    baseSalary: '',
+    bonus: '0',
+    deduction: '0',
+    remark: ''
+})
+  showSalaryModal.value = true
 }
 
 const editSalary = (salary: any) => {
   editMode.value = true
-  Object.assign(form, {
-    month: salary.month,
-    name: salary.name,
-    company: salary.company,
-    department: salary.department,
-    baseSalary: salary.baseSalary,
-    performance: salary.performance,
-    allowance: salary.allowance,
-    overtime: salary.overtime,
-    socialSecurity: salary.socialSecurity,
-    housingFund: salary.housingFund,
-    tax: salary.tax,
-    otherDeduction: salary.otherDeduction
-  })
-  showModal.value = true
+  Object.assign(salaryForm, { ...salary })
+  showSalaryModal.value = true
 }
 
-const closeModal = () => {
-  showModal.value = false
+const deleteSalary = (salary: any) => {
+  layer.confirm('确定删除该工资记录吗？', { icon: 3 }, (index: number) => {
+    const idx = salaries.value.findIndex(s => s.id === salary.id)
+    if (idx !== -1) salaries.value.splice(idx, 1)
+    message.success('删除成功')
+    layer.close(index)
+})
 }
 
-const submitForm = () => {
-  if (!form.month || !form.name) {
+const submitSalary = () => {
+  if (!salaryForm.month || !salaryForm.baseSalary) {
     message.warning('请填写必填项')
     return
-  }
-  message.success(editMode.value ? '更新成功' : '添加成功')
-  closeModal()
+}
+  if (editMode.value) {
+    const idx = salaries.value.findIndex(s => s.id === 1)
+    if (idx !== -1) {
+      salaries.value[idx] = {
+        ...salaries.value[idx], 
+        ...salaryForm, 
+        baseSalary: parseFloat(salaryForm.baseSalary),
+        bonus: parseFloat(salaryForm.bonus) || 0,
+        deduction: parseFloat(salaryForm.deduction) || 0,
+        actualSalary: calculateActualSalary.value
+}
+}
+    message.success('更新成功')
+} else {
+    salaries.value.unshift({
+      id: Date.now(),
+      month: salaryForm.month,
+      baseSalary: parseFloat(salaryForm.baseSalary),
+      bonus: parseFloat(salaryForm.bonus) || 0,
+      deduction: parseFloat(salaryForm.deduction) || 0,
+      actualSalary: calculateActualSalary.value,
+      payDate: salaryForm.payDate || new Date().toISOString().split('T')[0],
+      remark: salaryForm.remark
+})
+    message.success('添加成功')
+}
+  showSalaryModal.value = false
 }
 
-const saveDraft = () => {
-  message.success('已保存为草稿')
-  closeModal()
-}
-
-const viewDetail = (salary: any) => {
-  message.info(`查看 ${salary.name} ${salary.month} 工资详情`)
-}
-
-const viewSecurityDetail = () => {
-  showSecurityModal.value = true
-}
-
-const viewSumReport = () => {
-  message.info('汇总报表功能开发中')
-}
-
-const handleFilter = () => {
-  message.success('查询成功')
-}
-
-const resetFilter = () => {
-  Object.assign(filters, { month: '', member: '', company: '' })
-}
-
-const toggleSelectAll = () => {
-  selectedIds.value = selectAll.value ? filteredSalaries.value.map(s => s.id) : []
-}
-
-const changePage = (page: number) => {
-  if (page > 0) currentPage.value = page
-}
-
-const exportSalary = () => {
-  message.success('导出功能开发中')
-}
+const handleSearch = () => { currentPage.value = 1 }
+const changePage = (page: number) => { if (page > 0 && page <= totalPages.value) currentPage.value = page }
 
 const initCharts = () => {
   if (trendChartRef.value) {
-    const chart = echarts.init(trendChartRef.value)
-    chart.setOption({
+    trendChart = echarts.init(trendChartRef.value)
+    trendChart.setOption({
       tooltip: { trigger: 'axis' },
+      grid: { left: '3%', right: '4%', bottom: '3%', top: '10%', containLabel: true },
       xAxis: { type: 'category', data: ['1 月', '2 月', '3 月', '4 月', '5 月', '6 月'] },
       yAxis: { type: 'value' },
-      series: [{ data: [18500, 19200, 18800, 19500, 19700, 0], type: 'line', smooth: true, itemStyle: { color: '#16baaa' } }]
-    })
-  }
-  if (pieChartRef.value) {
-    const chart = echarts.init(pieChartRef.value)
-    chart.setOption({
-      tooltip: { trigger: 'item' },
       series: [{
-        type: 'pie', radius: '60%',
+        name: '实发工资',
+        type: 'line',
+        smooth: true,
+        data: [10500, 8500, 8500, 8400, 9000, 8500],
+        itemStyle: { color: '#16baaa' },
+        lineStyle: { width: 3 },
+        areaStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: 'rgba(22, 186, 170, 0.3)' },
+            { offset: 1, color: 'rgba(22, 186, 170, 0.05)' }
+          ])
+}
+}]
+})
+}
+
+  if (pieChartRef.value) {
+    pieChart = echarts.init(pieChartRef.value)
+    pieChart.setOption({
+      tooltip: { trigger: 'item' },
+      color: ['#16baaa', '#1e9fff', '#ffb800'],
+      series: [{
+        type: 'pie',
+        radius: ['50%', '75%'],
         data: [
-          { value: 15000, name: '基本工资' },
-          { value: 3000, name: '绩效奖金' },
-          { value: 1200, name: '补贴' },
-          { value: 500, name: '加班费' }
+          { value: 102000, name: '基本工资' },
+          { value: 15000, name: '绩效奖金' },
+          { value: 5000, name: '年终奖' }
         ]
-      }]
-    })
-  }
+}]
+})
+}
+}
+
+const resizeCharts = () => {
+  trendChart?.resize()
+  pieChart?.resize()
 }
 
 onMounted(() => {
   nextTick(() => {
     initCharts()
-    window.addEventListener('resize', () => {
-      trendChartRef.value && echarts.getInstanceByDom(trendChartRef.value)?.resize()
-      pieChartRef.value && echarts.getInstanceByDom(pieChartRef.value)?.resize()
-    })
-  })
+    window.addEventListener('resize', resizeCharts)
+})
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', resizeCharts)
+  trendChart?.dispose()
+  pieChart?.dispose()
 })
 </script>
 
 <style scoped>
-.salary-container { padding: 20px; }
-.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.page-header h2 { font-size: 20px; color: #333; display: flex; align-items: center; gap: 8px; }
-.header-actions { display: flex; gap: 12px; }
-.filter-section { background: #fff; padding: 20px; border-radius: 12px; margin-bottom: 20px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-.filter-item { display: flex; align-items: center; gap: 8px; }
-.filter-item label { color: #666; font-size: 14px; }
-.summary-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 24px; }
-.summary-card { background: #fff; padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-.summary-label { font-size: 14px; color: #999; margin-bottom: 8px; }
-.summary-value { font-size: 24px; font-weight: 600; }
-.charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 24px; }
-.chart-card { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-.card-header { display: flex; align-items: center; margin-bottom: 16px; gap: 8px; }
-.card-header h3 { font-size: 16px; color: #333; }
-.card-body { min-height: 300px; }
-.chart-container { width: 100%; height: 300px; }
-.salary-table-wrapper { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-.table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-.table-header h3 { font-size: 16px; color: #333; display: flex; align-items: center; gap: 8px; }
-.table-actions { display: flex; gap: 12px; }
-.table-wrapper { overflow-x: auto; }
-.font-weight { font-weight: 600; }
-.text-primary { color: #1e9fff; }
+.salary-panel-container { padding: 20px; background: #f5f6f7; min-height: calc(100vh - 120px); }
+.breadcrumb-bar { padding: 12px 0; }
+.breadcrumb-text { font-size: 14px; color: #666; }
+.breadcrumb-separator { margin: 0 8px; color: #999; }
+.breadcrumb-current { color: #333; font-weight: 500; }
+.panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.panel-header h2 { font-size: 20px; color: #333; }
+.summary-card { 
+  border-radius: 12px; 
+  border: 1px solid #e8e8e8;
+  background: #fff;
+}
+.summary-card .card-body {
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+  padding: 20px;
+}
+.card-icon { 
+  width: 64px; 
+  height: 64px; 
+  border-radius: 50%; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  font-size: 32px; 
+  color: #fff; 
+  flex-shrink: 0; 
+}
+.card-icon.income { background: linear-gradient(135deg, #16baaa 0%, #16b777 100%); }
+.card-icon.bonus { background: linear-gradient(135deg, #1e9fff 0%, #33a0ff 100%); }
+.card-icon.total { background: linear-gradient(135deg, #ffb800 0%, #ff9f43 100%); }
+.card-content { 
+  flex: 1; 
+  display: flex; 
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+.card-main {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+.card-label { font-size: 14px; color: #999; }
+.card-value { font-size: 28px; font-weight: 600; color: #333; }
+.card-trend { 
+  font-size: 13px; 
+  color: #999; 
+  display: flex; 
+  align-items: center; 
+  gap: 4px;
+  padding-top: 4px;
+  border-top: 1px solid #f0f0f0;
+}
+.trend-up { color: #16b777; }
 .text-success { color: #16b777; }
-.text-warning { color: #ffb800; }
 .text-danger { color: #ff5722; }
+.text-primary { color: #1e9fff; }
+.chart-container { width: 100%; height: 320px; }
 .pagination { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 16px; border-top: 1px solid #e6e6e6; }
 .pagination-info { color: #999; font-size: 13px; }
-.pagination-control { display: flex; gap: 8px; }
-.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-.modal-dialog { background: #fff; border-radius: 12px; width: 700px; max-width: 90vw; max-height: 90vh; display: flex; flex-direction: column; }
-.modal-dialog.modal-lg { width: 900px; }
-.modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid #e6e6e6; }
-.modal-header h4 { font-size: 18px; color: #333; }
-.modal-close { background: none; border: none; font-size: 20px; color: #999; cursor: pointer; }
-.modal-body { padding: 24px; overflow-y: auto; flex: 1; }
-.modal-footer { display: flex; justify-content: flex-end; gap: 12px; padding: 16px 24px; border-top: 1px solid #e6e6e6; }
-.salary-form { display: flex; flex-direction: column; gap: 16px; }
-.form-row { display: flex; gap: 16px; }
-.form-item { flex: 1; display: flex; flex-direction: column; gap: 8px; }
-.form-item label { font-size: 14px; color: #666; font-weight: 500; }
-.required { color: #ff5722; }
-.form-section { border: 1px solid #e6e6e6; border-radius: 8px; padding: 16px; background: #f8f8f8; }
-.section-title { font-size: 14px; color: #666; margin-bottom: 12px; font-weight: 600; }
-.form-result { background: #e8f6f3; border-radius: 8px; padding: 16px; margin-top: 16px; }
-.result-item { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 15px; }
-.result-item:last-child { margin-bottom: 0; }
-.result-value { font-size: 18px; font-weight: 600; }
 </style>

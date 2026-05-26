@@ -43,7 +43,7 @@
               :class="{ active: $route.path === menu.path }"
               @click="$router.push(menu.path)"
             >
-              <i :class="menu.meta.icon"></i>
+              <i :class="[menu.meta.icon.startsWith('layui-icon-') ? 'layui-icon' : '', menu.meta.icon]"></i>
               <span v-if="!sidebarCollapsed">{{ menu.meta.title }}</span>
             </div>
           </template>
@@ -51,10 +51,14 @@
       </div>
 
       <div class="layout-content">
-        <div class="content-tabs">
-          <div class="tab-item active">
-            <span>{{ currentTabTitle }}</span>
-            <i class="layui-icon layui-icon-close" @click="closeTab"></i>
+        <!-- 顶部面包屑区域 -->
+        <div class="content-breadcrumb">
+          <div class="breadcrumb-text">
+            <span v-for="(crumb, index) in breadcrumbs" :key="index">
+              <span v-if="index > 0" class="breadcrumb-separator"> / </span>
+              <router-link v-if="index < breadcrumbs.length - 1" :to="crumb.path" class="breadcrumb-link">{{ crumb.title }}</router-link>
+              <span v-else class="breadcrumb-current">{{ crumb.title }}</span>
+            </span>
           </div>
         </div>
         <router-view />
@@ -71,6 +75,22 @@ const router = useRouter()
 const route = useRoute()
 const sidebarCollapsed = ref(false)
 
+// 面包屑配置
+const breadcrumbs = computed(() => {
+  const pathList = route.path.split('/').filter(Boolean)
+  const crumbs = [{ path: '/dashboard', title: '首页' }]
+  
+  pathList.forEach((path, index) => {
+    const fullPath = '/' + pathList.slice(0, index + 1).join('/')
+    const menu = menuGroups.flatMap(g => g.menus).find(m => m.path === fullPath)
+    if (menu) {
+      crumbs.push({ path: fullPath, title: menu.meta.title })
+    }
+  })
+  
+  return crumbs
+})
+
 const menuGroups = [
   {
     title: '主要功能',
@@ -83,19 +103,19 @@ const menuGroups = [
     title: '账单管理',
     menus: [
       { path: '/bill/card', meta: { title: '银行卡管理', icon: 'layui-icon-card' } },
-      { path: '/bill/salary', meta: { title: '工资管理', icon: 'layui-icon-dollar' } },
-      { path: '/bill/family', meta: { title: '家庭成员', icon: 'layui-icon-user' } },
-      { path: '/bill/redEnvelope', meta: { title: '红包/投资', icon: 'layui-icon-gift' } },
-      { path: '/bill/transfer', meta: { title: '转账管理', icon: 'layui-icon-transfer' } },
+      { path: '/bill/salary', meta: { title: '工资管理', icon: 'fas fa-money-bill-wave' } },
+      { path: '/bill/family', meta: { title: '家庭成员', icon: 'fas fa-users' } },
+      { path: '/bill/redEnvelope', meta: { title: '红包/投资', icon: 'fas fa-envelope-open-text' } },
+      { path: '/bill/transfer', meta: { title: '转账管理', icon: 'fas fa-exchange-alt' } },
     ]
   },
   {
     title: '系统管理',
     menus: [
       { path: '/system/user', meta: { title: '用户管理', icon: 'layui-icon-username' } },
-      { path: '/system/role', meta: { title: '角色管理', icon: 'layui-icon-set' } },
+      { path: '/system/role', meta: { title: '角色管理', icon: 'fas fa-user-tag' } },
       { path: '/system/menu', meta: { title: '菜单管理', icon: 'layui-icon-menu' } },
-      { path: '/system/log', meta: { title: '日志管理', icon: 'layui-icon-log' } },
+      { path: '/system/log', meta: { title: '日志管理', icon: 'fas fa-history' } },
     ]
   },
   {
@@ -289,6 +309,13 @@ const handleLogout = () => {
   min-width: 18px;
 }
 
+.menu-item i.fas,
+.menu-item i.far,
+.menu-item i.fab,
+.menu-item i.fal {
+  font-size: 16px;
+}
+
 .layout-content {
   flex: 1;
   overflow: auto;
@@ -297,14 +324,33 @@ const handleLogout = () => {
   flex-direction: column;
 }
 
-.content-tabs {
-  height: 42px;
+.content-breadcrumb {
+  height: 40px;
   background: #fff;
   border-bottom: 1px solid #e6e6e6;
   display: flex;
   align-items: center;
-  padding: 0 16px;
-  gap: 8px;
+  padding: 0 20px;
+}
+.breadcrumb-text {
+  font-size: 14px;
+  color: #666;
+}
+.breadcrumb-separator {
+  margin: 0 8px;
+  color: #999;
+}
+.breadcrumb-link {
+  color: #666;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.breadcrumb-link:hover {
+  color: #16baaa;
+}
+.breadcrumb-current {
+  color: #333;
+  font-weight: 500;
 }
 
 .tab-item {

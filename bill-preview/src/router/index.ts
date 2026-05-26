@@ -5,7 +5,7 @@ const routes: RouteRecordRaw[] = [
     path: '/login',
     name: 'Login',
     component: () => import('@/views/login/LoginView.vue'),
-    meta: { title: '登录' }
+    meta: { title: '登录', icon: 'layui-icon-password' }
   },
   {
     path: '/',
@@ -31,31 +31,31 @@ const routes: RouteRecordRaw[] = [
         path: 'bill/card',
         name: 'CardManage',
         component: () => import('@/views/bill/card/CardNumberQuery.vue'),
-        meta: { title: '银行卡管理', icon: 'layui-icon-card' }
+        meta: { title: '银行卡管理', icon: 'layui-icon-app' }
       },
       {
         path: 'bill/salary',
         name: 'SalaryManage',
         component: () => import('@/views/bill/salary/SalaryPanel.vue'),
-        meta: { title: '工资管理', icon: 'layui-icon-dollar' }
+        meta: { title: '工资管理', icon: 'fas fa-money-bill-wave' }
       },
       {
         path: 'bill/family',
         name: 'FamilyManage',
         component: () => import('@/views/bill/family/Index.vue'),
-        meta: { title: '家庭成员', icon: 'layui-icon-user' }
+        meta: { title: '家庭成员', icon: 'fas fa-users' }
       },
       {
         path: 'bill/redEnvelope',
         name: 'RedEnvelope',
         component: () => import('@/views/bill/redEnvelope/InvestQuery.vue'),
-        meta: { title: '红包/投资', icon: 'layui-icon-gift' }
+        meta: { title: '红包/投资', icon: 'fas fa-envelope-open-text' }
       },
       {
         path: 'bill/transfer',
         name: 'TransferManage',
         component: () => import('@/views/bill/transfer/DetailQuery.vue'),
-        meta: { title: '转账管理', icon: 'layui-icon-transfer' }
+        meta: { title: '转账管理', icon: 'fas fa-exchange-alt' }
       },
       // 系统管理模块
       {
@@ -68,19 +68,19 @@ const routes: RouteRecordRaw[] = [
         path: 'system/role',
         name: 'RoleManage',
         component: () => import('@/views/system/role/Index.vue'),
-        meta: { title: '角色管理', icon: 'layui-icon-set' }
+        meta: { title: '角色管理', icon: 'fas fa-user-tag' }
       },
       {
         path: 'system/menu',
         name: 'MenuManage',
         component: () => import('@/views/system/menu/Index.vue'),
-        meta: { title: '菜单管理', icon: 'layui-icon-menu' }
+        meta: { title: '菜单管理', icon: 'layui-icon-component' }
       },
       {
         path: 'system/log',
         name: 'LogManage',
         component: () => import('@/views/system/log/LoginIndex.vue'),
-        meta: { title: '日志管理', icon: 'layui-icon-log' }
+        meta: { title: '日志管理', icon: 'fas fa-history' }
       },
       // 个人中心
       {

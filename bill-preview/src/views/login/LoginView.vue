@@ -9,63 +9,89 @@
         <p>Bill Management System</p>
       </div>
       
-      <div class="login-tabs">
-        <div class="tab-item" :class="{ active: loginType === 'username' }" @click="loginType = 'username'">账号登录</div>
-        <div class="tab-item" :class="{ active: loginType === 'phone' }" @click="loginType = 'phone'">验证码登录</div>
-      </div>
-
-      <div class="login-form">
-        <template v-if="loginType === 'username'">
-          <div class="form-item">
-            <div class="input-wrapper">
-              <i class="layui-icon layui-icon-username"></i>
-              <input v-model="loginForm.username" class="layui-input" placeholder="请输入用户名" />
-            </div>
-          </div>
-          <div class="form-item">
-            <div class="input-wrapper">
-              <i class="layui-icon layui-icon-password"></i>
-              <input v-model="loginForm.password" type="password" class="layui-input" placeholder="请输入密码" @keyup.enter="handleLogin" />
-            </div>
-          </div>
-        </template>
-
-        <template v-else>
-          <div class="form-item">
-            <div class="input-wrapper">
-              <i class="layui-icon layui-icon-phone"></i>
-              <input v-model="loginForm.phone" class="layui-input" placeholder="请输入手机号" maxlength="11" />
-            </div>
-          </div>
-          <div class="form-item form-item-code">
-            <div class="input-wrapper">
-              <i class="layui-icon layui-icon-vercode"></i>
-              <input v-model="loginForm.code" class="layui-input" placeholder="验证码" />
-            </div>
-            <button class="layui-btn layui-btn-primary code-btn" @click="sendCode" :disabled="countdown > 0">
-              {{ countdown > 0 ? `${countdown}s 后重发` : '获取验证码' }}
-            </button>
-          </div>
-        </template>
-
-        <div class="form-options">
-          <label class="checkbox-label">
-            <input type="checkbox" v-model="rememberMe" />
-            <span>记住我</span>
-          </label>
-          <a href="#" class="forgot-pwd">忘记密码？</a>
+      <lay-space :size="24" direction="vertical" class="login-content">
+        <div class="login-tabs">
+          <div class="tab-item" :class="{ active: loginType === 'username' }" @click="loginType = 'username'">账号登录</div>
+          <div class="tab-item" :class="{ active: loginType === 'phone' }" @click="loginType = 'phone'">验证码登录</div>
         </div>
 
-        <button class="layui-btn layui-btn-fluid login-btn" @click="handleLogin" :disabled="loading">
-          <i v-if="loading" class="layui-icon layui-icon-loading layui-anim layui-anim-rotate layui-anim-loop"></i>
-          <span v-else>登 录</span>
-        </button>
+        <lay-form :model="loginForm" ref="formRef" size="lg">
+          <template v-if="loginType === 'username'">
+            <lay-form-item>
+              <lay-input 
+                v-model="loginForm.username" 
+                placeholder="请输入用户名"
+                prefix-icon="layui-icon-username"
+                size="lg"
+              />
+            </lay-form-item>
+            <lay-form-item>
+              <lay-input 
+                v-model="loginForm.password" 
+                type="password"
+                placeholder="请输入密码"
+                prefix-icon="layui-icon-password"
+                size="lg"
+                @keyup.enter="handleLogin"
+              />
+            </lay-form-item>
+          </template>
 
-        <div class="demo-hint">
-          <p>演示账号：admin / 123456</p>
-          <p>或直接点击登录按钮进入系统</p>
-        </div>
-      </div>
+          <template v-else>
+            <lay-form-item>
+              <lay-input 
+                v-model="loginForm.phone" 
+                placeholder="请输入手机号"
+                prefix-icon="layui-icon-phone"
+                maxlength="11"
+                size="lg"
+              />
+            </lay-form-item>
+            <lay-form-item>
+              <div class="input-group">
+                <lay-input 
+                  v-model="loginForm.code" 
+                  placeholder="验证码"
+                  prefix-icon="layui-icon-vercode"
+                  size="lg"
+                  class="input-flex"
+                />
+                <lay-button 
+                  @click="sendCode" 
+                  :disabled="countdown > 0"
+                  :loading="sendingCode"
+                >
+                  {{ countdown > 0 ? `${countdown}s 后重发` : '获取验证码' }}
+                </lay-button>
+              </div>
+            </lay-form-item>
+          </template>
+
+          <lay-form-item>
+            <div class="form-options">
+              <lay-checkbox v-model="rememberMe">记住我</lay-checkbox>
+              <a href="#" class="forgot-pwd">忘记密码？</a>
+            </div>
+          </lay-form-item>
+
+          <lay-form-item>
+            <lay-button 
+              type="primary" 
+              @click="handleLogin" 
+              :loading="loading"
+              size="lg"
+              block
+            >
+              登 录
+            </lay-button>
+          </lay-form-item>
+
+          <div class="demo-hint">
+            <p>演示账号：admin / 123456</p>
+            <p>或直接点击登录按钮进入系统</p>
+          </div>
+        </lay-form>
+      </lay-space>
     </div>
 
     <div class="login-footer">
@@ -79,7 +105,7 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { login } from '@/api/module/auth'
-declare const layui: any
+import { LayForm, LayFormItem, LayInput, LayButton, LaySpace, LayCheckbox } from '@layui/layui-vue'
 
 const message = {
   success: (msg: string) => layui.layer.msg(msg, { icon: 1, time: 2000 }),
@@ -90,11 +116,13 @@ const message = {
 
 const router = useRouter()
 const userStore = useUserStore()
+const formRef = ref()
 
 const loginType = ref<'username' | 'phone'>('username')
 const rememberMe = ref(false)
 const loading = ref(false)
 const countdown = ref(0)
+const sendingCode = ref(false)
 
 const loginForm = reactive({
   username: '',
@@ -115,7 +143,6 @@ const handleLogin = async () => {
       )
     }
 
-    // 空账号密码则使用演示模式
     if (!params.username || !params.password) {
       userStore.setToken('demo_token')
       userStore.setUserInfo({ id: 1, username: 'admin', nickname: '管理员' })
@@ -138,7 +165,6 @@ const handleLogin = async () => {
     }
   } catch (error) {
     console.error('登录失败:', error)
-    // 失败时使用演示模式
     userStore.setToken('demo_token')
     userStore.setUserInfo({ id: 1, username: 'admin', nickname: '管理员' })
     message.success('演示模式登录成功')
@@ -158,8 +184,10 @@ const sendCode = () => {
     return
   }
   
+  sendingCode.value = true
   countdown.value = 60
   message.success('验证码已发送')
+  sendingCode.value = false
   
   const timer = setInterval(() => {
     countdown.value--
@@ -210,7 +238,7 @@ const sendCode = () => {
 
 .login-header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 .logo-wrapper {
@@ -242,10 +270,15 @@ const sendCode = () => {
   font-size: 14px;
 }
 
+.login-content {
+  width: 100%;
+}
+
 .login-tabs {
   display: flex;
-  margin-bottom: 24px;
   border-bottom: 2px solid #f0f0f0;
+  border-radius: 8px 8px 0 0;
+  overflow: hidden;
 }
 
 .tab-item {
@@ -256,81 +289,30 @@ const sendCode = () => {
   color: #666;
   transition: all 0.3s;
   font-weight: 500;
+  background: #fafafa;
 }
 
 .tab-item.active {
   color: #16baaa;
+  background: #fff;
   border-bottom: 2px solid #16baaa;
   margin-bottom: -2px;
 }
 
-.form-item {
-  margin-bottom: 20px;
-}
-
-.input-wrapper {
-  display: flex;
-  align-items: center;
-  border: 1px solid #e6e6e6;
-  border-radius: 8px;
-  padding: 0 16px;
-  transition: all 0.3s;
-}
-
-.input-wrapper:focus-within {
-  border-color: #16baaa;
-  box-shadow: 0 0 0 2px rgba(22, 186, 170, 0.1);
-}
-
-.input-wrapper i {
-  color: #999;
-  font-size: 18px;
-  margin-right: 12px;
-}
-
-.input-wrapper input {
-  flex: 1;
-  border: none;
-  outline: none;
-  height: 46px;
-  font-size: 15px;
-}
-
-.form-item-code {
+.input-group {
   display: flex;
   gap: 12px;
 }
 
-.form-item-code .input-wrapper {
+.input-flex {
   flex: 1;
-}
-
-.code-btn {
-  height: 46px;
-  white-space: nowrap;
-  padding: 0 20px;
-  border-radius: 8px;
-}
-
-.code-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
 }
 
 .form-options {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
-}
-
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  color: #666;
-  font-size: 14px;
+  width: 100%;
 }
 
 .forgot-pwd {
@@ -343,32 +325,8 @@ const sendCode = () => {
   text-decoration: underline;
 }
 
-.login-btn {
-  height: 48px;
-  font-size: 16px;
-  font-weight: 600;
-  background: linear-gradient(135deg, #16baaa 0%, #16b777 100%);
-  border: none;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.login-btn:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-.login-btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-  transform: none;
-}
-
 .demo-hint {
-  margin-top: 20px;
+  margin-top: 16px;
   padding: 16px;
   background: #f8f8f8;
   border-radius: 8px;

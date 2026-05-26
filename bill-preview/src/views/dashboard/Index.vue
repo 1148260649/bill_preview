@@ -1,135 +1,98 @@
 <template>
   <div class="dashboard-container">
-    <div class="dashboard-header">
-      <h2>数据概览</h2>
-      <p class="subtitle">欢迎使用账单管理系统</p>
-    </div>
-
-    <!-- 数据卡片 -->
-    <div class="data-cards">
-      <div class="data-card card-income">
-        <div class="card-icon">
-          <i class="layui-icon layui-icon-dollar"></i>
-        </div>
-        <div class="card-content">
-          <div class="card-label">本月收入</div>
-          <div class="card-value">¥ 25,680.00</div>
-          <div class="card-trend trend-up">
-            <i class="layui-icon layui-icon-up"></i>
-            <span>较上月 +12.5%</span>
-          </div>
-        </div>
+    <lay-space :size="20" direction="vertical" fill>
+      <div class="dashboard-header">
+        <h2>数据概览</h2>
       </div>
 
-      <div class="data-card card-expense">
-        <div class="card-icon">
-          <i class="layui-icon layui-icon-chart"></i>
-        </div>
-        <div class="card-content">
-          <div class="card-label">本月支出</div>
-          <div class="card-value">¥ 8,320.50</div>
-          <div class="card-trend trend-down">
-            <i class="layui-icon layui-icon-down"></i>
-            <span>较上月 -3.2%</span>
-          </div>
-        </div>
-      </div>
+      <lay-row :gutter="[20, 20]">
+        <lay-col lg="6" md="6" sm="6" xs="12" v-for="(card, index) in dataCards" :key="index">
+          <lay-card bordered class="data-card" :class="card.class">
+            <div class="card-body">
+              <div class="card-icon">
+                <i :class="card.icon"></i>
+              </div>
+              <div class="card-content">
+                <div class="card-main">
+                  <lay-space :size="8">
+                    <span class="card-label">{{ card.label }}</span>
+                    <span class="card-value">{{ card.value }}</span>
+                  </lay-space>
+                </div>
+                <div class="card-trend" :class="card.trendClass">
+                  <i v-if="card.trendIcon" :class="card.trendIcon"></i>
+                  <span>{{ card.trend }}</span>
+                </div>
+              </div>
+            </div>
+          </lay-card>
+        </lay-col>
+      </lay-row>
 
-      <div class="data-card card-balance">
-        <div class="card-icon">
-          <i class="layui-icon layui-icon-rmb"></i>
-        </div>
-        <div class="card-content">
-          <div class="card-label">当前余额</div>
-          <div class="card-value">¥ 156,420.80</div>
-          <div class="card-trend">
-            <span>较年初 +18.3%</span>
-          </div>
-        </div>
-      </div>
+      <lay-row :gutter="[20, 20]">
+        <lay-col lg="16" md="16" sm="12" xs="24">
+          <lay-card title="收支趋势" :bordered="false">
+            <div ref="trendChartRef" class="chart-container"></div>
+          </lay-card>
+        </lay-col>
+        <lay-col lg="8" md="8" sm="12" xs="24">
+          <lay-card title="支出分类" :bordered="false">
+            <div ref="pieChartRef" class="chart-container"></div>
+          </lay-card>
+        </lay-col>
+      </lay-row>
 
-      <div class="data-card card-saving">
-        <div class="card-icon">
-          <i class="layui-icon layui-icon-ok-circle"></i>
-        </div>
-        <div class="card-content">
-          <div class="card-label">本月结余</div>
-          <div class="card-value">¥ 17,359.50</div>
-          <div class="card-trend trend-up">
-            <i class="layui-icon layui-icon-up"></i>
-            <span>储蓄率 67.6%</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 图表区域 -->
-    <div class="charts-row">
-      <div class="chart-card">
-        <div class="card-header">
-          <h3>收支趋势</h3>
-        </div>
-        <div class="card-body">
-          <div ref="trendChartRef" class="chart-container"></div>
-        </div>
-      </div>
-
-      <div class="chart-card">
-        <div class="card-header">
-          <h3>支出分类</h3>
-        </div>
-        <div class="card-body">
-          <div ref="pieChartRef" class="chart-container"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 最近账单 -->
-    <div class="recent-bills">
-      <div class="card-header">
-        <h3>最近账单</h3>
-        <button class="layui-btn layui-btn-sm layui-btn-primary" @click="$router.push('/bill/bill')">
-          查看全部
-        </button>
-      </div>
-      <div class="card-body">
-        <table class="layui-table">
-          <thead>
-            <tr>
-              <th>日期</th>
-              <th>类型</th>
-              <th>金额</th>
-              <th>支付方式</th>
-              <th>备注</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="bill in recentBills" :key="bill.id">
-              <td>{{ bill.date }}</td>
-              <td>
-                <span :class="['bill-type', bill.type === '支出' ? 'type-expense' : 'type-income']">
-                  {{ bill.type }}
-                </span>
-              </td>
-              <td :class="bill.type === '支出' ? 'text-danger' : 'text-success'">
-                {{ bill.type === '支出' ? '-' : '+' }}{{ bill.amount }}
-              </td>
-              <td>{{ bill.paymentMethod }}</td>
-              <td>{{ bill.remark }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+      <lay-card title="最近账单" :bordered="false">
+        <template #extra>
+          <lay-button size="small" @click="$router.push('/bill/bill')">
+            查看全部
+          </lay-button>
+        </template>
+        <lay-table 
+          :columns="columns" 
+          :data-source="recentBills" 
+          :pagination="false"
+        >
+          <template #type="{ row }">
+            <span :class="['bill-type', row.type === '支出' ? 'type-expense' : 'type-income']">
+              {{ row.type }}
+            </span>
+          </template>
+          <template #amount="{ row }">
+            <span :class="row.type === '支出' ? 'text-danger' : 'text-success'">
+              {{ row.type === '支出' ? '-' : '' }}{{ row.amount }}
+            </span>
+          </template>
+        </lay-table>
+      </lay-card>
+    </lay-space>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, nextTick, reactive, onUnmounted } from 'vue'
 import * as echarts from 'echarts'
+import { LaySpace, LayRow, LayCol, LayCard, LayButton, LayTable } from '@layui/layui-vue'
 
-const trendChartRef = ref<HTMLElement>()
-const pieChartRef = ref<HTMLElement>()
+const trendChartRef = ref<HTMLElement | null>(null)
+const pieChartRef = ref<HTMLElement | null>(null)
+let trendChart: echarts.ECharts | null = null
+let pieChart: echarts.ECharts | null = null
+
+const columns = ref([
+  { title: '日期', key: 'date', width: '120px' },
+  { title: '类型', key: 'type', width: '100px', customSlot: 'type' },
+  { title: '金额', key: 'amount', width: '120px', customSlot: 'amount' },
+  { title: '支付方式', key: 'paymentMethod' },
+  { title: '备注', key: 'remark' }
+])
+
+const dataCards = reactive([
+  { label: '本月收入', value: '¥ 25,680.00', trend: '较上月 +12.5%', trendClass: 'trend-up', trendIcon: 'layui-icon layui-icon-up', icon: 'layui-icon layui-icon-dollar', class: 'card-income' },
+  { label: '本月支出', value: '¥ 8,320.50', trend: '较上月 -3.2%', trendClass: 'trend-down', trendIcon: 'layui-icon layui-icon-down', icon: 'layui-icon layui-icon-chart', class: 'card-expense' },
+  { label: '当前余额', value: '¥ 156,420.80', trend: '较年初 +18.3%', trendClass: '', icon: 'layui-icon layui-icon-rmb', class: 'card-balance' },
+  { label: '本月结余', value: '¥ 17,359.50', trend: '储蓄率 67.6%', trendClass: 'trend-up', trendIcon: 'layui-icon layui-icon-up', icon: 'layui-icon layui-icon-ok-circle', class: 'card-saving' }
+])
 
 const recentBills = ref([
   { id: 1, date: '2026-05-21', type: '支出', amount: '¥ 128.00', paymentMethod: '支付宝', remark: '超市购物' },
@@ -142,18 +105,17 @@ const recentBills = ref([
 const initTrendChart = () => {
   if (!trendChartRef.value) return
   
-  const chart = echarts.init(trendChartRef.value)
-  chart.setOption({
+  trendChart = echarts.init(trendChartRef.value)
+  trendChart.setOption({
     tooltip: {
-      trigger: 'axis'
-    },
-    legend: {
-      data: ['收入', '支出']
+      trigger: 'axis',
+      axisPointer: { type: 'shadow' }
     },
     grid: {
       left: '3%',
       right: '4%',
       bottom: '3%',
+      top: '10%',
       containLabel: true
     },
     xAxis: {
@@ -167,13 +129,15 @@ const initTrendChart = () => {
       {
         name: '收入',
         type: 'bar',
-        data: [18500, 22000, 19800, 24500, 25680, 0],
+        smooth: true,
+        data: [15800, 18200, 16500, 19800, 23500, 25680],
         itemStyle: { color: '#16baaa' }
       },
       {
         name: '支出',
         type: 'bar',
-        data: [7200, 8500, 6800, 9200, 8320, 0],
+        smooth: true,
+        data: [12300, 10500, 11800, 9200, 8320, 7500],
         itemStyle: { color: '#ff5722' }
       }
     ]
@@ -183,55 +147,76 @@ const initTrendChart = () => {
 const initPieChart = () => {
   if (!pieChartRef.value) return
   
-  const chart = echarts.init(pieChartRef.value)
-  chart.setOption({
+  pieChart = echarts.init(pieChartRef.value)
+  pieChart.setOption({
     tooltip: {
       trigger: 'item'
     },
-    legend: {
-      orient: 'vertical',
-      left: 'left'
-    },
+    color: ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7', '#dfe6e9', '#a29bfe'],
     series: [
       {
+        name: '支出分类',
         type: 'pie',
-        radius: '50%',
-        data: [
-          { value: 2680, name: '房租' },
-          { value: 1200, name: '餐饮' },
-          { value: 850, name: '交通' },
-          { value: 680, name: '购物' },
-          { value: 520, name: '娱乐' },
-          { value: 390, name: '其他' }
-        ],
+        radius: ['40%', '70%'],
+        avoidLabelOverlap: false,
+        itemStyle: {
+          borderRadius: 10,
+          borderColor: '#fff',
+          borderWidth: 2
+        },
+        label: {
+          show: false,
+          position: 'center'
+        },
         emphasis: {
-          itemStyle: {
-            shadowBlur: 10,
-            shadowOffsetX: 0,
-            shadowColor: 'rgba(0, 0, 0, 0.5)'
+          label: {
+            show: true,
+            fontSize: 14,
+            fontWeight: 'bold'
           }
-        }
+        },
+        labelLine: {
+          show: false
+        },
+        data: [
+          { value: 2680, name: '居住' },
+          { value: 856, name: '餐饮' },
+          { value: 384, name: '购物' },
+          { value: 365, name: '交通' },
+          { value: 158, name: '娱乐' },
+          { value: 120, name: '医疗' },
+          { value: 85, name: '其他' }
+        ]
       }
     ]
   })
+}
+
+const resizeCharts = () => {
+  trendChart?.resize()
+  pieChart?.resize()
 }
 
 onMounted(() => {
   nextTick(() => {
     initTrendChart()
     initPieChart()
-    
-    window.addEventListener('resize', () => {
-      trendChartRef.value && echarts.getInstanceByDom(trendChartRef.value)?.resize()
-      pieChartRef.value && echarts.getInstanceByDom(pieChartRef.value)?.resize()
-    })
+    window.addEventListener('resize', resizeCharts)
   })
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', resizeCharts)
+  trendChart?.dispose()
+  pieChart?.dispose()
 })
 </script>
 
 <style scoped>
 .dashboard-container {
   padding: 20px;
+  background: #f5f6f7;
+  min-height: calc(100vh - 120px);
 }
 
 .dashboard-header {
@@ -245,80 +230,79 @@ onMounted(() => {
 }
 
 .subtitle {
-  color: #999;
+  color: #666;
   font-size: 14px;
 }
-
-.data-cards {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-  margin-bottom: 24px;
-}
-
+.breadcrumb-bar { padding: 12px 0; }
+.breadcrumb-text { font-size: 14px; color: #666; }
+.breadcrumb-separator { margin: 0 8px; color: #999; }
+.breadcrumb-current { color: #333; font-weight: 500; }
 .data-card {
+  border-radius: 12px;
+  border: 1px solid #e8e8e8;
   background: #fff;
-  border-radius: 12px;
-  padding: 24px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: transform 0.3s, box-shadow 0.3s;
 }
-
+.data-card .card-body {
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+  padding: 20px;
+}
+.data-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
 .card-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 12px;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28px;
+  font-size: 32px;
+  color: #fff;
+  flex-shrink: 0;
 }
 
 .card-income .card-icon {
   background: linear-gradient(135deg, #16baaa 0%, #16b777 100%);
-  color: #fff;
 }
 
 .card-expense .card-icon {
   background: linear-gradient(135deg, #ff5722 0%, #ff7043 100%);
-  color: #fff;
 }
 
 .card-balance .card-icon {
   background: linear-gradient(135deg, #1e9fff 0%, #33a0ff 100%);
-  color: #fff;
 }
 
 .card-saving .card-icon {
-  background: linear-gradient(135deg, #ffb800 0%, #ffc107 100%);
-  color: #fff;
+  background: linear-gradient(135deg, #36d66c 0%, #16b777 100%);
 }
 
-.card-content {
-  flex: 1;
+.card-content { 
+  flex: 1; 
+  display: flex; 
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
 }
-
-.card-label {
-  font-size: 14px;
-  color: #999;
-  margin-bottom: 8px;
-}
-
-.card-value {
-  font-size: 24px;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 8px;
-}
-
-.card-trend {
-  font-size: 12px;
-  color: #666;
+.card-main {
   display: flex;
-  align-items: center;
+  align-items: baseline;
+  gap: 12px;
+}
+.card-label { font-size: 14px; color: #999; }
+.card-value { font-size: 28px; font-weight: 600; color: #333; }
+.card-trend { 
+  font-size: 13px; 
+  color: #999; 
+  display: flex; 
+  align-items: center; 
   gap: 4px;
+  padding-top: 4px;
+  border-top: 1px solid #f0f0f0;
 }
 
 .trend-up {
@@ -329,52 +313,9 @@ onMounted(() => {
   color: #ff5722;
 }
 
-.charts-row {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 20px;
-  margin-bottom: 24px;
-}
-
-.chart-card,
-.recent-bills {
-  background: #fff;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.card-header h3 {
-  font-size: 16px;
-  color: #333;
-}
-
-.card-body {
-  min-height: 300px;
-}
-
 .chart-container {
   width: 100%;
-  height: 300px;
-}
-
-.recent-bills {
-  margin-bottom: 24px;
-}
-
-.text-danger {
-  color: #ff5722;
-}
-
-.text-success {
-  color: #16b777;
+  height: 350px;
 }
 
 .bill-type {
@@ -390,6 +331,14 @@ onMounted(() => {
 
 .type-expense {
   background: #ffece6;
+  color: #ff5722;
+}
+
+.text-success {
+  color: #16b777;
+}
+
+.text-danger {
   color: #ff5722;
 }
 </style>
