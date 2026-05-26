@@ -2,12 +2,12 @@
 
 ## 1. 创建 GitHub 仓库
 
-在 GitHub 上创建一个新仓库（仓库名建议为 `bill-preview` 或你喜欢的名字）
+在 GitHub 上创建一个新仓库（仓库名建议为 `bill_preview` 或你喜欢的名字）
 
 ## 2. 关联远程仓库
 
 ```bash
-cd /workspace/bill-preview
+cd /workspace/bill_preview
 
 # 查看当前远程仓库
 git remote -v

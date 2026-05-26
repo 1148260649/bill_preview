@@ -3,7 +3,7 @@ import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 
 export default defineConfig({
-  base: process.env.BASE_PATH || '/',
+  base: process.env.BASE_PATH || '/bill_preview/',
   plugins: [vue()],
   resolve: {
     alias: {
@@ -15,7 +15,7 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    https: false,
+    // https: false,
     host: true,
     proxy: {
       '/api': {

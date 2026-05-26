@@ -12,13 +12,18 @@
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
-    "noEmit": true,
+//    "noEmit": true,
+    "emitDeclarationOnly": true,
 
     /* Linting */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+
+    "composite": true,        // ✅ 必须加这一行！
+    "declaration": true,      // ✅ 必须能生成声明文件
   },
   "include": [
     "vite.config.ts"
