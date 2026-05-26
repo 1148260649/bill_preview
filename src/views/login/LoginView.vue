@@ -18,16 +18,16 @@
         <lay-form :model="loginForm" ref="formRef" size="lg">
           <template v-if="loginType === 'username'">
             <lay-form-item>
-              <lay-input 
-                v-model="loginForm.username" 
+              <lay-input
+                v-model="loginForm.username"
                 placeholder="请输入用户名"
                 prefix-icon="layui-icon-username"
                 size="lg"
               />
             </lay-form-item>
             <lay-form-item>
-              <lay-input 
-                v-model="loginForm.password" 
+              <lay-input
+                v-model="loginForm.password"
                 type="password"
                 placeholder="请输入密码"
                 prefix-icon="layui-icon-password"
@@ -39,8 +39,8 @@
 
           <template v-else>
             <lay-form-item>
-              <lay-input 
-                v-model="loginForm.phone" 
+              <lay-input
+                v-model="loginForm.phone"
                 placeholder="请输入手机号"
                 prefix-icon="layui-icon-phone"
                 maxlength="11"
@@ -49,15 +49,15 @@
             </lay-form-item>
             <lay-form-item>
               <div class="input-group">
-                <lay-input 
-                  v-model="loginForm.code" 
+                <lay-input
+                  v-model="loginForm.code"
                   placeholder="验证码"
                   prefix-icon="layui-icon-vercode"
                   size="lg"
                   class="input-flex"
                 />
-                <lay-button 
-                  @click="sendCode" 
+                <lay-button
+                  @click="sendCode"
                   :disabled="countdown > 0"
                   :loading="sendingCode"
                 >
@@ -75,9 +75,9 @@
           </lay-form-item>
 
           <lay-form-item>
-            <lay-button 
-              type="primary" 
-              @click="handleLogin" 
+            <lay-button
+              type="primary"
+              @click="handleLogin"
               :loading="loading"
               size="lg"
               block
@@ -103,8 +103,8 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { useUserStore } from '@/stores/user'
-import { login } from '@/api/module/auth'
+import { useUserStore } from 'src/stores/user'
+import { login } from 'src/api/module/auth'
 import { LayForm, LayFormItem, LayInput, LayButton, LaySpace, LayCheckbox } from '@layui/layui-vue'
 
 const message = {
@@ -137,7 +137,7 @@ const handleLogin = async () => {
   try {
     const params = {
       type: loginType.value,
-      ...(loginType.value === 'username' 
+      ...(loginType.value === 'username'
         ? { username: loginForm.username, password: loginForm.password }
         : { phone: loginForm.phone, code: loginForm.code }
       )

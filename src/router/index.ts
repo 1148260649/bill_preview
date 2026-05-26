@@ -4,95 +4,95 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/login',
     name: 'Login',
-    component: () => import('@/views/login/LoginView.vue'),
+    component: () => import('../views/login/LoginView.vue'),
     meta: { title: '登录', icon: 'layui-icon-password' }
   },
   {
     path: '/',
     name: 'Layout',
-    component: () => import('@/layouts/BasicLayout.vue'),
+    component: () => import('../layouts/BasicLayout.vue'),
     redirect: '/dashboard',
     children: [
       // 首页
       {
         path: 'dashboard',
         name: 'Dashboard',
-        component: () => import('@/views/dashboard/Index.vue'),
+        component: () => import('../views/dashboard/Index.vue'),
         meta: { title: '首页', icon: 'layui-icon-home' }
       },
       // 账单管理模块
       {
         path: 'bill/bill',
         name: 'BillPanel',
-        component: () => import('@/views/bill/BillPanel.vue'),
+        component: () => import('../views/bill/BillPanel.vue'),
         meta: { title: '总账单看板', icon: 'layui-icon-chart' }
       },
       {
         path: 'bill/card',
         name: 'CardManage',
-        component: () => import('@/views/bill/card/CardNumberQuery.vue'),
+        component: () => import('../views/bill/card/CardNumberQuery.vue'),
         meta: { title: '银行卡管理', icon: 'layui-icon-app' }
       },
       {
         path: 'bill/salary',
         name: 'SalaryManage',
-        component: () => import('@/views/bill/salary/SalaryPanel.vue'),
+        component: () => import('../views/bill/salary/SalaryPanel.vue'),
         meta: { title: '工资管理', icon: 'fas fa-money-bill-wave' }
       },
       {
         path: 'bill/family',
         name: 'FamilyManage',
-        component: () => import('@/views/bill/family/Index.vue'),
+        component: () => import('../views/bill/family/Index.vue'),
         meta: { title: '家庭成员', icon: 'fas fa-users' }
       },
       {
         path: 'bill/redEnvelope',
         name: 'RedEnvelope',
-        component: () => import('@/views/bill/redEnvelope/InvestQuery.vue'),
+        component: () => import('../views/bill/redEnvelope/InvestQuery.vue'),
         meta: { title: '红包/投资', icon: 'fas fa-envelope-open-text' }
       },
       {
         path: 'bill/transfer',
         name: 'TransferManage',
-        component: () => import('@/views/bill/transfer/DetailQuery.vue'),
+        component: () => import('../views/bill/transfer/DetailQuery.vue'),
         meta: { title: '转账管理', icon: 'fas fa-exchange-alt' }
       },
       // 系统管理模块
       {
         path: 'system/user',
         name: 'UserManage',
-        component: () => import('@/views/system/user/Index.vue'),
+        component: () => import('../views/system/user/Index.vue'),
         meta: { title: '用户管理', icon: 'layui-icon-username' }
       },
       {
         path: 'system/role',
         name: 'RoleManage',
-        component: () => import('@/views/system/role/Index.vue'),
+        component: () => import('../views/system/role/Index.vue'),
         meta: { title: '角色管理', icon: 'fas fa-user-tag' }
       },
       {
         path: 'system/menu',
         name: 'MenuManage',
-        component: () => import('@/views/system/menu/Index.vue'),
+        component: () => import('../views/system/menu/Index.vue'),
         meta: { title: '菜单管理', icon: 'layui-icon-component' }
       },
       {
         path: 'system/log',
         name: 'LogManage',
-        component: () => import('@/views/system/log/LoginIndex.vue'),
+        component: () => import('../views/system/log/LoginIndex.vue'),
         meta: { title: '日志管理', icon: 'fas fa-history' }
       },
       // 个人中心
       {
         path: 'individual/profile',
         name: 'Profile',
-        component: () => import('@/views/individual/Profile.vue'),
+        component: () => import('../views/individual/Profile.vue'),
         meta: { title: '个人资料', icon: 'layui-icon-about' }
       },
       {
         path: 'individual/message',
         name: 'Message',
-        component: () => import('@/views/individual/Message.vue'),
+        component: () => import('../views/individual/Message.vue'),
         meta: { title: '消息中心', icon: 'layui-icon-notice' }
       },
     ]

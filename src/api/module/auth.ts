@@ -1,5 +1,5 @@
-import request from '@/utils/request'
-import { AUTH } from '@/api/requestUrlConfig'
+import request from '../../utils/request.ts'
+import { AUTH } from '../requestUrlConfig.ts'
 
 export interface LoginParams {
   username?: string

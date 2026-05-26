@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
-import { useUserStore } from '@/stores/user'
+import { useUserStore } from '../stores/user.ts'
 import { message } from '@layui/layui-vue'
 
 const request: AxiosInstance = axios.create({
@@ -25,7 +25,7 @@ request.interceptors.request.use(
 request.interceptors.response.use(
   (response: AxiosResponse) => {
     const res = response.data
-    
+
     // 成功
     if (response.status === 200) {
       return res
@@ -36,7 +36,7 @@ request.interceptors.response.use(
   (error) => {
     if (error.response) {
       const status = error.response.status
-      
+
       // 401: 未授权
       if (status === 401) {
         const userStore = useUserStore()
@@ -45,14 +45,14 @@ request.interceptors.response.use(
         window.location.href = '/login'
         return Promise.reject(error)
       }
-      
+
       // 500: 服务器错误
       if (status === 500) {
         message.error('服务器错误')
         return Promise.reject(error)
       }
     }
-    
+
     message.error(error.message || '网络错误')
     return Promise.reject(error)
   }
