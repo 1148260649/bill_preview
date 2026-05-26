@@ -55,10 +55,10 @@
               <label>日期:</label>
               <lay-input v-model="filters.dateRange" placeholder="日期范围" style="width: 200px" />
             </lay-space>
-            <lay-button size="small" @click="handleFilter">
+            <lay-button size="sm" @click="handleFilter">
               <i class="layui-icon layui-icon-search"></i> 查询
             </lay-button>
-            <lay-button size="small" @click="resetFilter">
+            <lay-button size="sm" @click="resetFilter">
               <i class="layui-icon layui-icon-refresh"></i> 重置
             </lay-button>
           </lay-space>
@@ -72,17 +72,17 @@
             共 {{ totalRecords }} 条，每页 {{ pageSize }} 条，第 {{ currentPage }} 页
           </div>
           <lay-space :size="8">
-            <lay-button size="small" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">上一页</lay-button>
+            <lay-button size="sm" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">上一页</lay-button>
             <lay-button 
               v-for="page in displayPages" 
               :key="page"
-              size="small"
-              :type="page === currentPage ? 'primary' : 'default'"
+              size="sm"
+              :type="page === currentPage ? 'primary' : undefined"
               @click="changePage(page)"
             >
               {{ page }}
             </lay-button>
-            <lay-button size="small" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">下一页</lay-button>
+            <lay-button size="sm" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">下一页</lay-button>
           </lay-space>
         </div>
       </lay-card>
@@ -109,14 +109,14 @@ const columns = ref([
   { title: '来源/去向', key: 'source', width: '150px' },
   { title: '备注', key: 'remark' },
   { title: '状态', key: 'status', width: '100px' },
-  { title: '操作', key: 'operator', width: '150px', fixed: 'right', customSlot: 'operator' }
+  { title: '操作', key: 'operator', width: '150px', fixed: 'right' as const, customSlot: 'operator' }
 ])
 
 const statsData = [
-  { label: '红包收入', value: '+12,580.00', tip: '本月累计', valueClass: 'text-success' },
-  { label: '红包支出', value: '-8,650.00', tip: '本月累计', valueClass: 'text-danger' },
-  { label: '投资总额', value: '125,000.00', tip: '当前持仓', valueClass: '' },
-  { label: '投资收益', value: '+15,680.00', tip: '累计收益', valueClass: 'text-success' }
+  { label: '红包收入', value: '+12,580.00', tip: '本月累计', valueClass: 'text-success', icon: 'layui-icon layui-icon-rmb' },
+  { label: '红包支出', value: '-8,650.00', tip: '本月累计', valueClass: 'text-danger', icon: 'layui-icon layui-icon-rmb' },
+  { label: '投资总额', value: '125,000.00', tip: '当前持仓', valueClass: '', icon: 'layui-icon layui-icon-rmb' },
+  { label: '投资收益', value: '+15,680.00', tip: '累计收益', valueClass: 'text-success', icon: 'layui-icon layui-icon-rmb' }
 ]
 
 const filters = reactive({

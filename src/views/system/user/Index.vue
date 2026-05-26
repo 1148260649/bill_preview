@@ -17,24 +17,24 @@
           <lay-input 
             v-model="filters.username" 
             placeholder="用户名" 
-            size="small"
+            size="sm"
             style="width: 150px"
           />
           <lay-input 
             v-model="filters.phone" 
             placeholder="手机号" 
-            size="small"
+            size="sm"
             style="width: 150px"
           />
-          <lay-select v-model="filters.status" placeholder="状态" size="small" style="width: 100px">
+          <lay-select v-model="filters.status" placeholder="状态" size="sm" style="width: 100px">
             <lay-select-option value="" label="全部"></lay-select-option>
             <lay-select-option value="1" label="正常"></lay-select-option>
             <lay-select-option value="0" label="停用"></lay-select-option>
           </lay-select>
-          <lay-button type="normal" size="small" @click="handleSearch">
+          <lay-button type="normal" size="sm" @click="handleSearch">
             <i class="layui-icon layui-icon-search"></i> 查询
           </lay-button>
-          <lay-button size="small" @click="resetFilter">
+          <lay-button size="sm" @click="resetFilter">
             <i class="layui-icon layui-icon-refresh"></i> 重置
           </lay-button>
         </lay-space>
@@ -55,13 +55,13 @@
           />
         </template>
         <template #operator="{ row }">
-          <lay-button size="small" @click="editUser(row)">
+          <lay-button size="sm" @click="editUser(row)">
             <i class="layui-icon layui-icon-edit"></i>
           </lay-button>
-          <lay-button size="small" type="danger" @click="deleteUser(row)" :disabled="row.userId === 1">
+          <lay-button size="sm" type="danger" @click="deleteUser(row)" :disabled="row.userId === 1">
             <i class="layui-icon layui-icon-delete"></i>
           </lay-button>
-          <lay-button size="small" @click="resetPassword(row)">
+          <lay-button size="sm" @click="resetPassword(row)">
             <i class="layui-icon layui-icon-refresh-1"></i>
           </lay-button>
         </template>
@@ -70,17 +70,17 @@
       <div class="pagination">
         <div class="pagination-info">共 {{ totalUsers }} 条，第 {{ currentPage }} 页</div>
         <lay-space :size="8">
-          <lay-button size="small" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">上一页</lay-button>
+          <lay-button size="sm" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">上一页</lay-button>
           <lay-button 
             v-for="page in displayPages" 
             :key="page"
-            size="small"
-            :type="page === currentPage ? 'normal' : 'default'"
+            size="sm"
+            :type="page === currentPage ? 'normal' : undefined"
             @click="changePage(page)"
           >
             {{ page }}
           </lay-button>
-          <lay-button size="small" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">下一页</lay-button>
+          <lay-button size="sm" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">下一页</lay-button>
         </lay-space>
       </div>
     </lay-card>
@@ -174,7 +174,7 @@ const columns = ref([
   { title: '手机号', key: 'phonenumber', width: '130px' },
   { title: '状态', key: 'status', width: '80px', customSlot: 'status' },
   { title: '创建时间', key: 'createTime', width: '180px' },
-  { title: '操作', key: 'operator', width: '180px', fixed: 'right', customSlot: 'operator' }
+  { title: '操作', key: 'operator', width: '180px', fixed: 'right' as const, customSlot: 'operator' }
 ])
 
 const currentPage = ref(1)
@@ -247,19 +247,23 @@ const editUser = (user: any) => {
 }
 
 const deleteUser = (user: any) => {
-  layer.confirm('确定删除该用户吗？', { icon: 3 }, (index: number) => {
-    const idx = users.value.findIndex(u => u.userId === user.userId)
-    if (idx !== -1) users.value.splice(idx, 1)
-    message('删除成功', { icon: 1 })
-    layer.close(index)
-})
+  layer.confirm('确定删除该用户吗？', {
+    icon: 3,
+    yes: (index: number) => {
+      const idx = users.value.findIndex(u => u.userId === user.userId)
+      if (idx !== -1) users.value.splice(idx, 1)
+      layer.close(index)
+    }
+  })
 }
 
 const resetPassword = (user: any) => {
-  layer.confirm('确定重置用户密码吗？', { icon: 3 }, (index: number) => {
-    message('密码已重置为 123456', { icon: 1 })
-    layer.close(index)
-})
+  layer.confirm('确定重置用户密码吗？', {
+    icon: 3,
+    yes: (index: number) => {
+      layer.close(index)
+    }
+  })
 }
 
 const toggleStatus = (user: any) => {
@@ -277,8 +281,7 @@ const submitUser = () => {
     message('更新成功', { icon: 1 })
 } else {
     users.value.unshift({
-      userId: Date.now(),
-      ...userForm,
+      ...userForm, userId: Date.now(),
       deptName: '研发部',
       createTime: new Date().toLocaleString('zh-CN')
 })

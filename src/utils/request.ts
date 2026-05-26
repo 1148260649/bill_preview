@@ -1,6 +1,10 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import { useUserStore } from '../stores/user.ts'
-import { message } from '@layui/layui-vue'
+import { layer } from '@layui/layui-vue'
+const message = {
+  error: (msg: string) => layer.msg(msg, { icon: 3, time: 2000 }),
+  success: (msg: string) => layer.msg(msg, { icon: 1, time: 2000 })
+}
 
 const request: AxiosInstance = axios.create({
   baseURL: '/api',

@@ -46,10 +46,10 @@
             <lay-select-option value="2" label="停用"></lay-select-option>
           </lay-select>
         </lay-space>
-        <lay-button size="small" @click="handleFilter">
+        <lay-button size="sm" @click="handleFilter">
           <i class="layui-icon layui-icon-search"></i> 查询
         </lay-button>
-        <lay-button size="small" @click="resetFilter">
+        <lay-button size="sm" @click="resetFilter">
           <i class="layui-icon layui-icon-refresh"></i> 重置
         </lay-button>
       </lay-space>
@@ -123,13 +123,13 @@
             {{ card.status === '1' ? '激活' : '停用' }}
           </div>
           <div class="card-actions">
-            <lay-button size="small" @click="viewDetail(card)">
+            <lay-button size="sm" @click="viewDetail(card)">
               <i class="layui-icon layui-icon-eye"></i> 详情
             </lay-button>
-            <lay-button size="small" @click="editCard(card)">
+            <lay-button size="sm" @click="editCard(card)">
               <i class="layui-icon layui-icon-edit"></i> 编辑
             </lay-button>
-            <lay-button size="small" :type="card.status === '1' ? 'danger' : 'normal'" @click="toggleStatus(card)">
+            <lay-button size="sm" :type="card.status === '1' ? 'danger' : 'normal'" @click="toggleStatus(card)">
               {{ card.status === '1' ? '停用' : '启用' }}
             </lay-button>
           </div>
@@ -145,10 +145,10 @@
       <lay-form :model="cardForm" :label-width="100">
         <lay-form-item label="卡类型" required>
           <div class="type-selector">
-            <lay-button :type="cardForm.cardType === '1' ? 'normal' : 'default'" @click="cardForm.cardType = '1'">
+            <lay-button :type="cardForm.cardType === '1' ? 'normal' : undefined" @click="cardForm.cardType = '1'">
               <i class="layui-icon layui-icon-card"></i> 储蓄卡
             </lay-button>
-            <lay-button :type="cardForm.cardType === '2' ? 'normal' : 'default'" @click="cardForm.cardType = '2'">
+            <lay-button :type="cardForm.cardType === '2' ? 'normal' : undefined" @click="cardForm.cardType = '2'">
               <i class="layui-icon layui-icon-dollar"></i> 信用卡
             </lay-button>
           </div>
@@ -170,7 +170,7 @@
           </lay-col>
         </lay-row>
         <lay-form-item label="卡号" required>
-          <lay-input v-model="cardForm.cardNumber" placeholder="请输入完整的银行卡号" maxlength="19" />
+          <lay-input v-model="cardForm.cardNumber" placeholder="请输入完整的银行卡号" :maxlength="19" />
         </lay-form-item>
         <lay-row :gutter="[16, 0]" v-if="cardForm.cardType === '2'">
           <lay-col lg="12" md="12" sm="6" xs="12">
@@ -261,8 +261,8 @@ const getBankIcon = (bankType: string) => {
 }
 const handleFilter = () => message.success('查询成功')
 const resetFilter = () => { Object.keys(filters).forEach(k => (filters as any)[k] = '') }
-const showAddCard = () => { editMode = false; Object.keys(cardForm).forEach(k => (cardForm as any)[k] = k === 'cardType' ? '1' : k === 'status' ? '1' : ''); showCardModal.value = true }
-const editCard = (card: any) => { editMode = true; Object.assign(cardForm, card); showCardModal.value = true }
+const showAddCard = () => { editMode.value = false; Object.keys(cardForm).forEach(k => (cardForm as any)[k] = k === 'cardType' ? '1' : k === 'status' ? '1' : ''); showCardModal.value = true }
+const editCard = (card: any) => { editMode.value = true; Object.assign(cardForm, card); showCardModal.value = true }
 const closeCardModal = () => { showCardModal.value = false }
 const submitCard = () => { message.success(editMode ? '更新成功' : '添加成功'); closeCardModal() }
 const deleteCurrentCard = () => { message.success('删除成功'); closeCardModal() }

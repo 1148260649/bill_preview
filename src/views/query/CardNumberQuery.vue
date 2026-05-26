@@ -27,10 +27,10 @@
                   </div>
                 </div>
                 <div class="card-actions">
-                  <lay-button size="small" @click="viewTransactions(card)">
+                  <lay-button size="sm" @click="viewTransactions(card)">
                     <i class="layui-icon layui-icon-chart"></i>
                   </lay-button>
-                  <lay-button size="small" @click="copyCardNumber(card)">
+                  <lay-button size="sm" @click="copyCardNumber(card)">
                     <i class="layui-icon layui-icon-file"></i>
                   </lay-button>
                 </div>
@@ -45,19 +45,19 @@
           <lay-input 
             v-model="searchText" 
             placeholder="搜索银行名称、卡号" 
-            size="small"
+            size="sm"
             style="width: 250px"
             @keyup.enter="handleSearch"
           />
-          <lay-select v-model="filters.cardType" placeholder="卡片类型" size="small" style="width: 120px">
+          <lay-select v-model="filters.cardType" placeholder="卡片类型" size="sm" style="width: 120px">
             <lay-select-option value="" label="全部"></lay-select-option>
             <lay-select-option value="debit" label="借记卡"></lay-select-option>
             <lay-select-option value="credit" label="信用卡"></lay-select-option>
           </lay-select>
-          <lay-button type="normal" size="small" @click="handleSearch">
+          <lay-button type="normal" size="sm" @click="handleSearch">
             <i class="layui-icon layui-icon-search"></i> 查询
           </lay-button>
-          <lay-button size="small" @click="resetFilter">
+          <lay-button size="sm" @click="resetFilter">
             <i class="layui-icon layui-icon-refresh"></i> 重置
           </lay-button>
         </lay-space>
@@ -77,7 +77,11 @@ import { ref, computed, reactive, nextTick, onMounted } from 'vue'
 import { LayCard, LaySpace, LayButton, LayTable, LayInput, LaySelect, LaySelectOption, LayTag } from '@layui/layui-vue'
 import { LayLayer, layer } from '@layui/layer-vue'
 
-const message = layer.msg
+const message = {
+  info: (msg: string) => layer.msg(msg, { icon: 0, time: 2000 }),
+  success: (msg: string) => layer.msg(msg, { icon: 1, time: 2000 }),
+  error: (msg: string) => layer.msg(msg, { icon: 2, time: 2000 })
+}
 
 const columns = ref([
   { title: '银行名称', key: 'bankName', width: '150px' },
@@ -122,13 +126,13 @@ const viewTransactions = (card: any) => {
 const copyCardNumber = (card: any) => {
   const cardNum = card.cardNumber.replace(/\s/g, '')
   navigator.clipboard.writeText(cardNum).then(() => {
-    message.success('卡号已复制到剪贴板', { icon: 1 })
+    message.success('卡号已复制到剪贴板')
   }).catch(() => {
-    message.error('复制失败', { icon: 2 })
+    message.error('复制失败')
   })
 }
 
-const handleSearch = () => { message('查询成功', { icon: 1 }) }
+const handleSearch = () => { message.success('查询成功') }
 const resetFilter = () => { Object.assign(filters, { cardType: '' }); searchText.value = '' }
 
 onMounted(() => {

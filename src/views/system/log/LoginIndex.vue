@@ -10,24 +10,24 @@
           <lay-input 
             v-model="filters.username" 
             placeholder="用户名" 
-            size="small"
+            size="sm"
             style="width: 150px"
           />
           <lay-input 
             v-model="filters.ip" 
             placeholder="IP 地址" 
-            size="small"
+            size="sm"
             style="width: 150px"
           />
-          <lay-select v-model="filters.status" placeholder="状态" size="small" style="width: 100px">
+          <lay-select v-model="filters.status" placeholder="状态" size="sm" style="width: 100px">
             <lay-select-option value="" label="全部"></lay-select-option>
             <lay-select-option value="1" label="成功"></lay-select-option>
             <lay-select-option value="0" label="失败"></lay-select-option>
           </lay-select>
-          <lay-button type="normal" size="small" @click="handleSearch">
+          <lay-button type="normal" size="sm" @click="handleSearch">
             <i class="layui-icon layui-icon-search"></i> 查询
           </lay-button>
-          <lay-button size="small" @click="resetFilter">
+          <lay-button size="sm" @click="resetFilter">
             <i class="layui-icon layui-icon-refresh"></i> 重置
           </lay-button>
         </lay-space>
@@ -39,17 +39,17 @@
       <div class="pagination">
         <div class="pagination-info">共 {{ totalLogs }} 条，第 {{ currentPage }} 页</div>
         <lay-space :size="8">
-          <lay-button size="small" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">上一页</lay-button>
+          <lay-button size="sm" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">上一页</lay-button>
           <lay-button 
             v-for="page in displayPages" 
             :key="page"
-            size="small"
-            :type="page === currentPage ? 'normal' : 'default'"
+            size="sm"
+            :type="page === currentPage ? 'normal' : undefined"
             @click="changePage(page)"
           >
             {{ page }}
           </lay-button>
-          <lay-button size="small" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">下一页</lay-button>
+          <lay-button size="sm" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">下一页</lay-button>
         </lay-space>
       </div>
     </lay-card>

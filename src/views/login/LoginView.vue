@@ -43,7 +43,7 @@
                 v-model="loginForm.phone"
                 placeholder="请输入手机号"
                 prefix-icon="layui-icon-phone"
-                maxlength="11"
+                :maxlength="11"
                 size="lg"
               />
             </lay-form-item>
@@ -69,7 +69,7 @@
 
           <lay-form-item>
             <div class="form-options">
-              <lay-checkbox v-model="rememberMe">记住我</lay-checkbox>
+              <lay-checkbox v-model="rememberMe" value="true">记住我</lay-checkbox>
               <a href="#" class="forgot-pwd">忘记密码？</a>
             </div>
           </lay-form-item>
@@ -103,10 +103,11 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { useUserStore } from 'src/stores/user'
-import { login } from 'src/api/module/auth'
+import { useUserStore } from '@/stores/user'
+import { login } from '@/api/module/auth'
 import { LayForm, LayFormItem, LayInput, LayButton, LaySpace, LayCheckbox } from '@layui/layui-vue'
 
+const layui = (window as any).layui
 const message = {
   success: (msg: string) => layui.layer.msg(msg, { icon: 1, time: 2000 }),
   info: (msg: string) => layui.layer.msg(msg, { icon: 0, time: 2000 }),
@@ -143,7 +144,7 @@ const handleLogin = async () => {
       )
     }
 
-    if (!params.username || !params.password) {
+    if (!(params as any).username || !(params as any).password) {
       userStore.setToken('demo_token')
       userStore.setUserInfo({ id: 1, username: 'admin', nickname: '管理员' })
       message.success('欢迎使用账单管理系统')

@@ -15,14 +15,14 @@
           <lay-input 
             v-model="searchText" 
             placeholder="菜单名称" 
-            size="small"
+            size="sm"
             style="width: 200px"
             @keyup.enter="handleSearch"
           />
-          <lay-button type="normal" size="small" @click="handleSearch">
+          <lay-button type="normal" size="sm" @click="handleSearch">
             <i class="layui-icon layui-icon-search"></i> 查询
           </lay-button>
-          <lay-button size="small" @click="resetSearch">
+          <lay-button size="sm" @click="resetSearch">
             <i class="layui-icon layui-icon-refresh"></i> 重置
           </lay-button>
         </lay-space>

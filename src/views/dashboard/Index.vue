@@ -44,7 +44,7 @@
 
       <lay-card title="最近账单" :bordered="false">
         <template #extra>
-          <lay-button size="small" @click="$router.push('/bill/bill')">
+          <lay-button size="sm" @click="router.push('/bill/bill')">
             查看全部
           </lay-button>
         </template>
@@ -71,8 +71,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted, nextTick, reactive, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import * as echarts from 'echarts'
 import { LaySpace, LayRow, LayCol, LayCard, LayButton, LayTable } from '@layui/layui-vue'
+
+const router = useRouter()
 
 const trendChartRef = ref<HTMLElement | null>(null)
 const pieChartRef = ref<HTMLElement | null>(null)

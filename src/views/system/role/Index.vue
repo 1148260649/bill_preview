@@ -15,19 +15,19 @@
           <lay-input 
             v-model="filters.roleName" 
             placeholder="角色名称" 
-            size="small"
+            size="sm"
             style="width: 150px"
           />
           <lay-input 
             v-model="filters.roleKey" 
             placeholder="权限字符" 
-            size="small"
+            size="sm"
             style="width: 150px"
           />
-          <lay-button type="normal" size="small" @click="handleSearch">
+          <lay-button type="normal" size="sm" @click="handleSearch">
             <i class="layui-icon layui-icon-search"></i> 查询
           </lay-button>
-          <lay-button size="small" @click="resetFilter">
+          <lay-button size="sm" @click="resetFilter">
             <i class="layui-icon layui-icon-refresh"></i> 重置
           </lay-button>
         </lay-space>
@@ -38,26 +38,26 @@
           <lay-switch v-model="row.status" :checked-value="'1'" :unchecked-value="'0'" @change="toggleStatus(row)" />
         </template>
         <template #operator="{ row }">
-          <lay-button size="small" @click="editRole(row)"><i class="layui-icon layui-icon-edit"></i></lay-button>
-          <lay-button size="small" type="danger" @click="deleteRole(row)" :disabled="row.roleId === 1"><i class="layui-icon layui-icon-delete"></i></lay-button>
-          <lay-button size="small" @click="assignPermissions(row)"><i class="layui-icon layui-icon-set"></i></lay-button>
+          <lay-button size="sm" @click="editRole(row)"><i class="layui-icon layui-icon-edit"></i></lay-button>
+          <lay-button size="sm" type="danger" @click="deleteRole(row)" :disabled="row.roleId === 1"><i class="layui-icon layui-icon-delete"></i></lay-button>
+          <lay-button size="sm" @click="assignPermissions(row)"><i class="layui-icon layui-icon-set"></i></lay-button>
         </template>
       </lay-table>
 
       <div class="pagination">
         <div class="pagination-info">共 {{ totalRoles }} 条，第 {{ currentPage }} 页</div>
         <lay-space :size="8">
-          <lay-button size="small" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">上一页</lay-button>
+          <lay-button size="sm" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">上一页</lay-button>
           <lay-button 
             v-for="page in displayPages" 
             :key="page"
-            size="small"
-            :type="page === currentPage ? 'normal' : 'default'"
+            size="sm"
+            :type="page === currentPage ? 'normal' : undefined"
             @click="changePage(page)"
           >
             {{ page }}
           </lay-button>
-          <lay-button size="small" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">下一页</lay-button>
+          <lay-button size="sm" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">下一页</lay-button>
         </lay-space>
       </div>
     </lay-card>
@@ -114,7 +114,7 @@ const columns = ref([
   { title: '显示顺序', key: 'roleSort', width: '100px' },
   { title: '状态', key: 'status', width: '80px', customSlot: 'status' },
   { title: '创建时间', key: 'createTime', width: '180px' },
-  { title: '操作', key: 'operator', width: '220px', fixed: 'right', customSlot: 'operator' }
+  { title: '操作', key: 'operator', width: '220px', fixed: 'right' as const, customSlot: 'operator' }
 ])
 
 const currentPage = ref(1)
@@ -181,12 +181,14 @@ const editRole = (role: any) => {
 }
 
 const deleteRole = (role: any) => {
-  layer.confirm('确定删除该角色吗？', { icon: 3 }, (index: number) => {
-    const idx = roles.value.findIndex(r => r.roleId === role.roleId)
-    if (idx !== -1) roles.value.splice(idx, 1)
-    message('删除成功', { icon: 1 })
-    layer.close(index)
-})
+  layer.confirm('确定删除该角色吗？', {
+    icon: 3,
+    yes: (index: number) => {
+      const idx = roles.value.findIndex(r => r.roleId === role.roleId)
+      if (idx !== -1) roles.value.splice(idx, 1)
+      layer.close(index)
+    }
+  })
 }
 
 const assignPermissions = (role: any) => {
@@ -208,8 +210,7 @@ const submitRole = () => {
     message('更新成功', { icon: 1 })
 } else {
     roles.value.unshift({
-      roleId: Date.now(),
-      ...roleForm,
+      ...roleForm, roleId: Date.now(),
       createTime: new Date().toLocaleString('zh-CN')
 })
     message('添加成功', { icon: 1 })

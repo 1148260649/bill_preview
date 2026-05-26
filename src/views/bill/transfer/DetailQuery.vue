@@ -61,17 +61,17 @@
           共 {{ totalTransfers }} 条，每页 {{ pageSize }} 条，第 {{ currentPage }} 页
         </div>
         <lay-space :size="8">
-          <lay-button size="small" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">上一页</lay-button>
+          <lay-button size="sm" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">上一页</lay-button>
           <lay-button 
             v-for="page in displayPages" 
             :key="page"
-            size="small"
-            :type="page === currentPage ? 'primary' : 'default'"
+            size="sm"
+            :type="page === currentPage ? 'primary' : undefined"
             @click="changePage(page)"
           >
             {{ page }}
           </lay-button>
-          <lay-button size="small" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">下一页</lay-button>
+          <lay-button size="sm" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">下一页</lay-button>
         </lay-space>
       </div>
     </lay-card>
@@ -96,7 +96,7 @@ const columns = ref([
   { title: '金额', key: 'amount', width: '120px', customSlot: 'amount' },
   { title: '对方信息', key: 'counterparty' },
   { title: '摘要', key: 'summary' },
-  { title: '操作', key: 'operator', width: '150px', fixed: 'right', customSlot: 'operator' }
+  { title: '操作', key: 'operator', width: '150px', fixed: 'right' as const, customSlot: 'operator' }
 ])
 
 const filters = reactive({

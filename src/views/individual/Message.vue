@@ -70,6 +70,7 @@ import { ref, computed } from 'vue'
 import { LayButton } from '@layui/layui-vue'
 import { LayLayer, layer } from '@layui/layer-vue'
 
+const layui = (window as any).layui
 const message = {
   success: (msg: string) => layui.layer.msg(msg, { icon: 1, time: 2000 }),
   info: (msg: string) => layui.layer.msg(msg, { icon: 0, time: 2000 }),

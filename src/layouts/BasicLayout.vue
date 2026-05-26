@@ -40,8 +40,8 @@
               v-for="menu in group.menus" 
               :key="menu.path"
               class="menu-item"
-              :class="{ active: $route.path === menu.path }"
-              @click="$router.push(menu.path)"
+              :class="{ active: route.path === menu.path }"
+              @click="router.push(menu.path)"
             >
               <i :class="[menu.meta.icon.startsWith('layui-icon-') ? 'layui-icon' : '', menu.meta.icon]"></i>
               <span v-if="!sidebarCollapsed">{{ menu.meta.title }}</span>

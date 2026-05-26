@@ -11,6 +11,7 @@
     "noEmit": true,
     "jsx": "preserve",
     "strict": true,
+    "types": ["vite/client"],
     "noFallthroughCasesInSwitch": true,
 //    "baseUrl": "./bill_preview",
     "paths": {

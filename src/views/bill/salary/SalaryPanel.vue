@@ -92,11 +92,11 @@
             <lay-input 
               v-model="searchText" 
               placeholder="搜索月份、备注..." 
-              size="small"
+              size="sm"
               style="width: 200px"
               @keyup.enter="handleSearch"
             />
-            <lay-button size="small" @click="handleSearch">
+            <lay-button size="sm" @click="handleSearch">
               <i class="layui-icon layui-icon-search"></i>
             </lay-button>
           </lay-space>
@@ -120,10 +120,10 @@
             <span class="text-primary" style="font-weight: bold;">¥{{ formatMoney(row.netSalary) }}</span>
           </template>
           <template #operator="{ row }">
-            <lay-button size="small" @click="editSalary(row)">
+            <lay-button size="sm" @click="editSalary(row)">
               <i class="layui-icon layui-icon-edit"></i>
             </lay-button>
-            <lay-button size="small" type="danger" @click="deleteSalary(row)">
+            <lay-button size="sm" type="danger" @click="deleteSalary(row)">
               <i class="layui-icon layui-icon-delete"></i>
             </lay-button>
           </template>
@@ -132,17 +132,17 @@
         <div class="pagination">
           <div class="pagination-info">共 {{ totalSalaries }} 条，第 {{ currentPage }} 页</div>
           <lay-space :size="8">
-            <lay-button size="small" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">上一页</lay-button>
+            <lay-button size="sm" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">上一页</lay-button>
             <lay-button 
               v-for="page in displayPages" 
               :key="page"
-              size="small"
-              :type="page === currentPage ? 'normal' : 'default'"
+              size="sm"
+              :type="page === currentPage ? 'normal' : undefined"
               @click="changePage(page)"
             >
               {{ page }}
             </lay-button>
-            <lay-button size="small" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">下一页</lay-button>
+            <lay-button size="sm" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">下一页</lay-button>
           </lay-space>
         </div>
       </lay-card>
@@ -220,7 +220,7 @@ const columns = ref([
   { title: '扣除', key: 'deduction', width: '100px', customSlot: 'deduction' },
   { title: '实发工资', key: 'netSalary', width: '120px', customSlot: 'netSalary' },
   { title: '发放状态', key: 'status', width: '100px' },
-  { title: '操作', key: 'operator', width: '150px', fixed: 'right', customSlot: 'operator' }
+  { title: '操作', key: 'operator', width: '150px', fixed: 'right' as const, customSlot: 'operator' }
 ])
 
 const trendChartRef = ref<HTMLElement | null>(null)
@@ -312,12 +312,15 @@ const editSalary = (salary: any) => {
 }
 
 const deleteSalary = (salary: any) => {
-  layer.confirm('确定删除该工资记录吗？', { icon: 3 }, (index: number) => {
-    const idx = salaries.value.findIndex(s => s.id === salary.id)
-    if (idx !== -1) salaries.value.splice(idx, 1)
-    message.success('删除成功')
-    layer.close(index)
-})
+  layer.confirm('确定删除该工资记录吗？', {
+    icon: 3,
+    yes: (index: number) => {
+      const idx = salaries.value.findIndex(s => s.id === salary.id)
+      if (idx !== -1) salaries.value.splice(idx, 1)
+      message.success('删除成功')
+      layer.close(index)
+    }
+  })
 }
 
 const submitSalary = () => {

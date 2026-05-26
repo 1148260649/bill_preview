@@ -7,7 +7,7 @@
           <lay-button 
             v-for="mode in viewModes" 
             :key="mode.value"
-            :type="viewMode === mode.value ? 'normal' : 'default'"
+            :type="viewMode === mode.value ? 'normal' : undefined"
             @click="switchViewMode(mode.value)"
           >
             {{ mode.label }}
@@ -18,7 +18,7 @@
             v-model="selectedDate" 
             :type="datePickerType"
             placeholder="选择日期"
-            size="small"
+            size="sm"
             @change="onDateChange"
             style="width: 200px"
           />
@@ -82,11 +82,11 @@
               <lay-input 
                 v-model="searchText" 
                 placeholder="搜索备注、分类..." 
-                size="small"
+                size="sm"
                 style="width: 240px"
                 @keyup.enter="handleSearch"
               />
-              <lay-button size="small" @click="handleSearch">
+              <lay-button size="sm" @click="handleSearch">
                 <i class="layui-icon layui-icon-search"></i>
               </lay-button>
             </div>
@@ -100,7 +100,7 @@
           <lay-space :size="16">
             <lay-space :size="8">
               <span>类型:</span>
-              <lay-select v-model="filters.type" size="small" style="width: 120px">
+              <lay-select v-model="filters.type" size="sm" style="width: 120px">
                 <lay-select-option value="" label="全部"></lay-select-option>
                 <lay-select-option value="收入" label="收入"></lay-select-option>
                 <lay-select-option value="支出" label="支出"></lay-select-option>
@@ -108,15 +108,15 @@
             </lay-space>
             <lay-space :size="8">
               <span>分类:</span>
-              <lay-select v-model="filters.category" size="small" style="width: 120px">
+              <lay-select v-model="filters.category" size="sm" style="width: 120px">
                 <lay-select-option value="" label="全部"></lay-select-option>
                 <lay-select-option v-for="cat in categories" :key="cat" :value="cat" :label="cat"></lay-select-option>
               </lay-select>
             </lay-space>
-            <lay-button type="normal" size="small" @click="handleFilter">
+            <lay-button type="normal" size="sm" @click="handleFilter">
               <i class="layui-icon layui-icon-search"></i> 查询
             </lay-button>
-            <lay-button size="small" @click="resetFilter">
+            <lay-button size="sm" @click="resetFilter">
               <i class="layui-icon layui-icon-refresh"></i> 重置
             </lay-button>
           </lay-space>
@@ -141,10 +141,10 @@
             </span>
           </template>
           <template #operator="{ row }">
-            <lay-button size="small" @click="editBill(row)">
+            <lay-button size="sm" @click="editBill(row)">
               <i class="layui-icon layui-icon-edit"></i>
             </lay-button>
-            <lay-button size="small" type="danger" @click="deleteBill(row)">
+            <lay-button size="sm" type="danger" @click="deleteBill(row)">
               <i class="layui-icon layui-icon-delete"></i>
             </lay-button>
           </template>
@@ -155,17 +155,17 @@
             共 {{ totalBills }} 条，第 {{ currentPage }} 页
           </div>
           <lay-space :size="8">
-            <lay-button size="small" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">上一页</lay-button>
+            <lay-button size="sm" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">上一页</lay-button>
             <lay-button 
               v-for="page in displayPages" 
               :key="page"
-              size="small"
-              :type="page === currentPage ? 'normal' : 'default'"
+              size="sm"
+              :type="page === currentPage ? 'normal' : undefined"
               @click="changePage(page)"
             >
               {{ page }}
             </lay-button>
-            <lay-button size="small" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">下一页</lay-button>
+            <lay-button size="sm" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">下一页</lay-button>
           </lay-space>
         </div>
       </lay-card>
@@ -176,13 +176,13 @@
         <lay-form-item label="类型" required>
           <div class="type-selector">
             <lay-button 
-              :type="billForm.type === '支出' ? 'normal' : 'default'"
+              :type="billForm.type === '支出' ? 'normal' : undefined"
               @click="billForm.type = '支出'"
             >
               支出
             </lay-button>
             <lay-button 
-              :type="billForm.type === '收入' ? 'normal' : 'default'"
+              :type="billForm.type === '收入' ? 'normal' : undefined"
               @click="billForm.type = '收入'"
             >
               收入
@@ -253,7 +253,7 @@ const columns = ref([
   { title: '金额', key: 'amount', width: '120px', customSlot: 'amount' },
   { title: '支付方式', key: 'paymentMethod', width: '100px' },
   { title: '备注', key: 'remark' },
-  { title: '操作', key: 'operator', width: '120px', fixed: 'right', customSlot: 'operator' }
+  { title: '操作', key: 'operator', width: '120px', fixed: 'right' as const, customSlot: 'operator' }
 ])
 
 const viewMode = ref<'day' | 'month' | 'year'>('month')
@@ -531,12 +531,15 @@ const editBill = (bill: any) => {
 }
 
 const deleteBill = (bill: any) => {
-  layer.confirm('确定删除该账单吗？', { icon: 3 }, (index: number) => {
-    const idx = bills.value.findIndex(b => b.id === bill.id)
-    if (idx !== -1) bills.value.splice(idx, 1)
-    message.success('删除成功')
-    layer.close(index)
-})
+  layer.confirm('确定删除该账单吗？', {
+    icon: 3,
+    yes: (index: number) => {
+      const idx = bills.value.findIndex(b => b.id === bill.id)
+      if (idx !== -1) bills.value.splice(idx, 1)
+      message.success('删除成功')
+      layer.close(index)
+    }
+  })
 }
 
 const submitBill = () => {

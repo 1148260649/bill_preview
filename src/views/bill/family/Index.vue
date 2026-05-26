@@ -29,7 +29,7 @@
           <lay-input 
             v-model="searchText" 
             placeholder="搜索姓名、关系..." 
-            size="small"
+            size="sm"
             style="width: 200px"
             @keyup.enter="handleSearch"
           />
@@ -49,10 +49,10 @@
                     <i class="layui-icon" :class="getAvatarIcon(member.relation)"></i>
                   </div>
                   <div class="member-actions">
-                    <lay-button size="small" @click="editMember(member)">
+                    <lay-button size="sm" @click="editMember(member)">
                       <i class="layui-icon layui-icon-edit"></i>
                     </lay-button>
-                    <lay-button size="small" type="danger" @click="deleteMember(member)">
+                    <lay-button size="sm" type="danger" @click="deleteMember(member)">
                       <i class="layui-icon layui-icon-delete"></i>
                     </lay-button>
                   </div>
@@ -60,7 +60,7 @@
                 <div class="member-info">
                   <div class="member-name">{{ member.name }}</div>
                   <div class="member-relation">
-                    <lay-tag size="small">{{ member.relation }}</lay-tag>
+                    <lay-tag size="sm">{{ member.relation }}</lay-tag>
                   </div>
                 </div>
                 <div class="member-details">
@@ -85,17 +85,17 @@
         <div v-if="filteredMembers.length > 0" class="pagination">
           <div class="pagination-info">共 {{ totalMembers }} 条，第 {{ currentPage }} 页</div>
           <lay-space :size="8">
-            <lay-button size="small" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">上一页</lay-button>
+            <lay-button size="sm" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">上一页</lay-button>
             <lay-button 
               v-for="page in displayPages" 
               :key="page"
-              size="small"
-              :type="page === currentPage ? 'normal' : 'default'"
+              size="sm"
+              :type="page === currentPage ? 'normal' : undefined"
               @click="changePage(page)"
             >
               {{ page }}
             </lay-button>
-            <lay-button size="small" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">下一页</lay-button>
+            <lay-button size="sm" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">下一页</lay-button>
           </lay-space>
         </div>
       </lay-card>
@@ -237,12 +237,15 @@ const editMember = (member: any) => {
 }
 
 const deleteMember = (member: any) => {
-  layer.confirm('确定删除该家庭成员吗？', { icon: 3 }, (index: number) => {
-    const idx = members.value.findIndex(m => m.id === member.id)
-    if (idx !== -1) members.value.splice(idx, 1)
-    message.success('删除成功')
-    layer.close(index)
-})
+  layer.confirm('确定删除该家庭成员吗？', {
+    icon: 3,
+    yes: (index: number) => {
+      const idx = members.value.findIndex(m => m.id === member.id)
+      if (idx !== -1) members.value.splice(idx, 1)
+      message.success('删除成功')
+      layer.close(index)
+    }
+  })
 }
 
 const submitMember = () => {
