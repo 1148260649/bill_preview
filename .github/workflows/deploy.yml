@@ -33,6 +33,8 @@ jobs:
 
       - name: Build
         run: npm run build   # ✅ 会执行 "vue-tsc -b && vite build"
+        env:
+          BASE_PATH: /bill_preview/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
