@@ -47,3 +47,33 @@ Agent 在任务执行过程中发现的条目应遵循以下格式：
   - 每页显示 10 条数据，支持翻页功能
   - 每个分页列表至少需要 50 条左右的测试数据（5 页）
   - 使用 layui 的分页组件样式进行样式美化
+
+[Layout 布局优化]
+- Date: 2026-05-27
+- Context: 账单管理系统 UI 优化
+- Instructions:
+  - 面包屑导航统一放在 Layout 顶部区域（侧边栏上方）
+  - 删除各页面内的面包屑代码和副标题描述
+  - 卡片采用圆形图标（64x64px，border-radius: 50%）
+  - 卡片布局为两行：上方 label+value，下方 trend 带分割线
+  - 所有卡片添加浅色边框（1px solid #e8e8e8）和 20px 间距
+  - 使用 Layui Vue Grid 响应式属性（lg/md/sm/xs）替代 :span
+
+[GitHub Pages 部署]
+- Date: 2026-05-27
+- Context: 配置 GitHub 自动部署
+- Instructions:
+  - 使用 GitHub Actions 自动部署到 GitHub Pages
+  - vite.config.ts 配置 base: process.env.BASE_PATH || '/'
+  - router/index.ts 使用 createWebHistory(import.meta.env.BASE_URL)
+  - deploy.yml 中设置 BASE_PATH: /${{ github.event.repository.name }}/
+  - 推送到 main 分支自动触发构建部署
+
+[Gitea 凭证配置]
+- Date: 2026-05-27
+- Context: Git 推送认证配置
+- Instructions:
+  - Gitea 仓库地址：https://gitea.com/jzp/bill_preview.git
+  - 用户名：jz_ssfy
+  - 使用 Personal Access Token 进行认证
+  - 凭证存储在 ~/.git-credentials 文件中
