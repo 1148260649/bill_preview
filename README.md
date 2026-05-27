@@ -140,6 +140,6 @@ npm run build
 
 ---
 
-**在线预览**: [GitHub Pages](https://nan2026.github.io/bill-preview/)
+**在线预览**: [GitHub Pages](https://1148260649.github.io/bill_preview/)
 
 **后端 API**: 需单独部署，默认地址 `http://localhost:8089`
