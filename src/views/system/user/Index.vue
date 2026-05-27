@@ -85,9 +85,9 @@
       </div>
     </lay-card>
 
-    <lay-layer v-model="showUserModal" :title="editMode ? '编辑用户' : '添加用户'" :area="['600px', 'auto']">
-      <lay-form :model="userForm" :label-width="80" style="padding: 8px 0;">
-        <lay-row :gutter="[16, 0]">
+    <lay-layer v-model="showUserModal" :title="editMode ? '编辑用户' : '添加用户'" :area="['700px']" >
+      <lay-form :model="userForm" :label-width="70" style="padding: 16px;">
+        <lay-row :gutter="[20, 16]">
           <lay-col lg="12" md="12" sm="6" xs="12">
             <lay-form-item label="用户名" required>
               <lay-input v-model="userForm.userName" placeholder="请输入用户名" :disabled="editMode" />
@@ -99,7 +99,7 @@
             </lay-form-item>
           </lay-col>
         </lay-row>
-        <lay-row :gutter="[16, 0]">
+        <lay-row :gutter="[20, 16]">
           <lay-col lg="12" md="12" sm="6" xs="12">
             <lay-form-item label="手机号" required>
               <lay-input v-model="userForm.phonenumber" placeholder="请输入手机号" type="tel" />
@@ -111,13 +111,15 @@
             </lay-form-item>
           </lay-col>
         </lay-row>
-        <lay-form-item label="性别">
-          <lay-radio-group v-model="userForm.sex">
-            <lay-radio value="1">男</lay-radio>
-            <lay-radio value="0">女</lay-radio>
-          </lay-radio-group>
-        </lay-form-item>
-        <lay-row :gutter="[16, 0]">
+        <lay-row :gutter="[20, 16]">
+          <lay-col lg="12" md="12" sm="6" xs="12">
+            <lay-form-item label="性别">
+              <lay-radio-group v-model="userForm.sex">
+                <lay-radio value="1">男</lay-radio>
+                <lay-radio value="0">女</lay-radio>
+              </lay-radio-group>
+            </lay-form-item>
+          </lay-col>
           <lay-col lg="12" md="12" sm="6" xs="12">
             <lay-form-item label="部门">
               <lay-select v-model="userForm.deptId" placeholder="请选择部门">
@@ -128,6 +130,8 @@
               </lay-select>
             </lay-form-item>
           </lay-col>
+        </lay-row>
+        <lay-row :gutter="[20, 16]">
           <lay-col lg="12" md="12" sm="6" xs="12">
             <lay-form-item label="角色">
               <lay-select v-model="userForm.roleId" placeholder="请选择角色">
@@ -136,20 +140,24 @@
               </lay-select>
             </lay-form-item>
           </lay-col>
+          <lay-col lg="12" md="12" sm="6" xs="12">
+            <lay-form-item label="状态">
+              <lay-radio-group v-model="userForm.status">
+                <lay-radio value="1">正常</lay-radio>
+                <lay-radio value="0">停用</lay-radio>
+              </lay-radio-group>
+            </lay-form-item>
+          </lay-col>
         </lay-row>
-        <lay-form-item label="状态">
-          <lay-radio-group v-model="userForm.status">
-            <lay-radio value="1">正常</lay-radio>
-            <lay-radio value="0">停用</lay-radio>
-          </lay-radio-group>
-        </lay-form-item>
         <lay-form-item label="备注">
           <lay-textarea v-model="userForm.remark" placeholder="请输入备注" :rows="3" />
         </lay-form-item>
       </lay-form>
       <template #footer>
-        <lay-button @click="showUserModal = false">取消</lay-button>
-        <lay-button type="normal" @click="submitUser">确认保存</lay-button>
+        <div style="display: flex; gap: 12px; justify-content: flex-end; padding: 0 16px 16px;">
+          <lay-button @click="showUserModal = false">取消</lay-button>
+          <lay-button type="normal" @click="submitUser">确认保存</lay-button>
+        </div>
       </template>
     </lay-layer>
   </div>

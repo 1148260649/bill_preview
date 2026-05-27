@@ -101,17 +101,23 @@
       </lay-card>
     </lay-space>
 
-    <lay-layer v-model="showMemberModal" :title="editMode ? '编辑成员' : '添加成员'" :area="['500px', 'auto']">
-      <lay-form :model="memberForm" :label-width="60" style="padding: 8px 0;">
-        <lay-form-item label="姓名" required>
-          <lay-input v-model="memberForm.name" placeholder="请输入姓名" />
-        </lay-form-item>
-        <lay-form-item label="关系" required>
-          <lay-select v-model="memberForm.relation" placeholder="请选择关系">
-            <lay-select-option v-for="rel in relations" :key="rel" :value="rel" :label="rel"></lay-select-option>
-          </lay-select>
-        </lay-form-item>
-        <lay-row :gutter="[16, 0]">
+    <lay-layer v-model="showMemberModal" :title="editMode ? '编辑成员' : '添加成员'" :area="['600px']" >
+      <lay-form :model="memberForm" :label-width="70" style="padding: 16px;">
+        <lay-row :gutter="[20, 16]">
+          <lay-col lg="12" md="12" sm="6" xs="12">
+            <lay-form-item label="姓名" required>
+              <lay-input v-model="memberForm.name" placeholder="请输入姓名" />
+            </lay-form-item>
+          </lay-col>
+          <lay-col lg="12" md="12" sm="6" xs="12">
+            <lay-form-item label="关系" required>
+              <lay-select v-model="memberForm.relation" placeholder="请选择关系">
+                <lay-select-option v-for="rel in relations" :key="rel" :value="rel" :label="rel"></lay-select-option>
+              </lay-select>
+            </lay-form-item>
+          </lay-col>
+        </lay-row>
+        <lay-row :gutter="[20, 16]">
           <lay-col lg="12" md="12" sm="6" xs="12">
             <lay-form-item label="生日">
               <lay-input v-model="memberForm.birthday" type="date" />
@@ -134,8 +140,10 @@
         </lay-form-item>
       </lay-form>
       <template #footer>
-        <lay-button @click="showMemberModal = false">取消</lay-button>
-        <lay-button type="normal" @click="submitMember">确认保存</lay-button>
+        <div style="display: flex; gap: 12px; justify-content: flex-end; padding: 0 16px 16px;">
+          <lay-button @click="showMemberModal = false">取消</lay-button>
+          <lay-button type="normal" @click="submitMember">确认保存</lay-button>
+        </div>
       </template>
     </lay-layer>
   </div>

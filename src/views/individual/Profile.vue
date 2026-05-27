@@ -109,21 +109,23 @@
       </lay-row>
     </div>
 
-    <lay-layer v-model="showPasswordModal" title="修改密码" :area="['500px', 'auto']">
-      <lay-form :model="passwordForm" :label-width="80">
-        <lay-form-item label="当前密码">
+    <lay-layer v-model="showPasswordModal" title="修改密码" :area="['550px']" >
+      <lay-form :model="passwordForm" :label-width="90" style="padding: 16px;">
+        <lay-form-item label="当前密码" required>
           <lay-input v-model="passwordForm.oldPassword" type="password" placeholder="请输入当前密码" />
         </lay-form-item>
-        <lay-form-item label="新密码">
+        <lay-form-item label="新密码" required>
           <lay-input v-model="passwordForm.newPassword" type="password" placeholder="请输入新密码" />
         </lay-form-item>
-        <lay-form-item label="确认密码">
+        <lay-form-item label="确认密码" required>
           <lay-input v-model="passwordForm.confirmPassword" type="password" placeholder="请再次输入新密码" />
         </lay-form-item>
       </lay-form>
       <template #footer>
-        <lay-button @click="showPasswordModal = false">取消</lay-button>
-        <lay-button type="primary" @click="changePassword">确认修改</lay-button>
+        <div style="display: flex; gap: 12px; justify-content: flex-end; padding: 0 16px 16px;">
+          <lay-button @click="showPasswordModal = false">取消</lay-button>
+          <lay-button type="normal" @click="changePassword">确认修改</lay-button>
+        </div>
       </template>
     </lay-layer>
   </div>

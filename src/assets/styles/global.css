@@ -58,3 +58,34 @@ html, body, #app {
 .layui-input, .layui-select, .layui-textarea {
   border-radius: 4px;
 }
+
+/* Layer 弹窗优化 */
+.layui-layer {
+  border-radius: 8px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+.layui-layer-title {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  padding: 16px 20px !important;
+  border-bottom: 1px solid #e6e6e6 !important;
+}
+
+/* 弹窗内容区域 */
+.layui-layer-content {
+  padding: 0 !important;
+}
+
+/* 弹窗按钮栏 */
+.layui-layer-btn {
+  text-align: right !important;
+  padding: 0 20px 20px !important;
+  border-top: 1px solid #e6e6e6 !important;
+}
+
+.layui-layer-btn a {
+  border-radius: 4px !important;
+  padding: 0 24px !important;
+}
+

@@ -49,17 +49,23 @@
       </div>
     </div>
 
-    <lay-layer v-model="showDetailModal" :title="currentMessage?.title || ''" :area="['600px', 'auto']">
-      <div class="detail-content" v-if="currentMessage">
-        <div class="detail-meta">
-          <span class="meta-item"><i class="layui-icon layui-icon-time"></i> {{ currentMessage.time }}</span>
-          <span class="meta-item" v-if="currentMessage.sender"><i class="layui-icon layui-icon-username"></i> {{ currentMessage.sender }}</span>
+    <lay-layer v-model="showDetailModal" :title="currentMessage?.title || ''" :area="['650px']" >
+      <div class="detail-content" v-if="currentMessage" style="padding: 16px;">
+        <div class="detail-meta" style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #e6e6e6;">
+          <span class="meta-item" style="margin-right: 20px; color: #666;">
+            <i class="layui-icon layui-icon-time" style="margin-right: 4px;"></i> {{ currentMessage.time }}
+          </span>
+          <span class="meta-item" v-if="currentMessage.sender" style="color: #666;">
+            <i class="layui-icon layui-icon-username" style="margin-right: 4px;"></i> {{ currentMessage.sender }}
+          </span>
         </div>
-        <div class="detail-body">{{ currentMessage.content }}</div>
+        <div class="detail-body" style="line-height: 1.8; color: #333;">{{ currentMessage.content }}</div>
       </div>
       <template #footer>
-        <lay-button @click="showDetailModal = false">关闭</lay-button>
-        <lay-button v-if="!currentMessage?.read" @click="markAsRead">标记为已读</lay-button>
+        <div style="display: flex; gap: 12px; justify-content: flex-end; padding: 0 16px 16px;">
+          <lay-button @click="showDetailModal = false">关闭</lay-button>
+          <lay-button v-if="!currentMessage?.read" @click="markAsRead">标记为已读</lay-button>
+        </div>
       </template>
     </lay-layer>
   </div>

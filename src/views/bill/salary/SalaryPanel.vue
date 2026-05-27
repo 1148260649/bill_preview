@@ -148,9 +148,9 @@
       </lay-card>
     </lay-space>
 
-    <lay-layer v-model="showSalaryModal" :title="editMode ? '编辑工资' : '添加工资'" :area="['600px', 'auto']">
-      <lay-form :model="salaryForm" :label-width="80" style="padding: 8px 0;">
-        <lay-row :gutter="[16, 0]">
+    <lay-layer v-model="showSalaryModal" :title="editMode ? '编辑工资' : '添加工资'" :area="['700px']" >
+      <lay-form :model="salaryForm" :label-width="90" style="padding: 16px;">
+        <lay-row :gutter="[20, 16]">
           <lay-col lg="12" md="12" sm="6" xs="12">
             <lay-form-item label="月份" required>
               <lay-input v-model="salaryForm.month" type="month" />
@@ -162,20 +162,20 @@
             </lay-form-item>
           </lay-col>
         </lay-row>
-        <lay-row :gutter="[16, 0]">
+        <lay-row :gutter="[20, 16]">
           <lay-col lg="8" md="8" sm="6" xs="12">
             <lay-form-item label="基本工资" required>
-              <lay-input v-model="salaryForm.baseSalary" type="number" placeholder="0.00" />
+              <lay-input v-model="salaryForm.baseSalary" type="number" placeholder="0.00" prefix="¥" />
             </lay-form-item>
           </lay-col>
           <lay-col lg="8" md="8" sm="6" xs="12">
             <lay-form-item label="绩效奖金">
-              <lay-input v-model="salaryForm.bonus" type="number" placeholder="0.00" />
+              <lay-input v-model="salaryForm.bonus" type="number" placeholder="0.00" prefix="¥" />
             </lay-form-item>
           </lay-col>
           <lay-col lg="8" md="8" sm="6" xs="12">
             <lay-form-item label="扣款">
-              <lay-input v-model="salaryForm.deduction" type="number" placeholder="0.00" />
+              <lay-input v-model="salaryForm.deduction" type="number" placeholder="0.00" prefix="¥" />
             </lay-form-item>
           </lay-col>
         </lay-row>
@@ -191,8 +191,10 @@
         </lay-form-item>
       </lay-form>
       <template #footer>
-        <lay-button @click="showSalaryModal = false">取消</lay-button>
-        <lay-button type="normal" @click="submitSalary">确认保存</lay-button>
+        <div style="display: flex; gap: 12px; justify-content: flex-end; padding: 0 16px 16px;">
+          <lay-button @click="showSalaryModal = false">取消</lay-button>
+          <lay-button type="normal" @click="submitSalary">确认保存</lay-button>
+        </div>
       </template>
     </lay-layer>
   </div>

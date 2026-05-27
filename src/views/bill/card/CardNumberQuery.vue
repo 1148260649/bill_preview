@@ -141,19 +141,19 @@
       </div>
     </div>
 
-    <lay-layer v-model="showCardModal" :title="editMode ? '编辑银行卡' : '添加银行卡'" :area="['700px', 'auto']">
-      <lay-form :model="cardForm" :label-width="100">
+    <lay-layer v-model="showCardModal" :title="editMode ? '编辑银行卡' : '添加银行卡'" :area="['700px']" >
+      <lay-form :model="cardForm" :label-width="90" style="padding: 16px;">
         <lay-form-item label="卡类型" required>
           <div class="type-selector">
-            <lay-button :type="cardForm.cardType === '1' ? 'normal' : undefined" @click="cardForm.cardType = '1'">
+            <lay-button :type="cardForm.cardType === '1' ? 'normal' : 'default'" @click="cardForm.cardType = '1'">
               <i class="layui-icon layui-icon-card"></i> 储蓄卡
             </lay-button>
-            <lay-button :type="cardForm.cardType === '2' ? 'normal' : undefined" @click="cardForm.cardType = '2'">
+            <lay-button :type="cardForm.cardType === '2' ? 'normal' : 'default'" @click="cardForm.cardType = '2'">
               <i class="layui-icon layui-icon-dollar"></i> 信用卡
             </lay-button>
           </div>
         </lay-form-item>
-        <lay-row :gutter="[16, 0]">
+        <lay-row :gutter="[20, 16]">
           <lay-col lg="12" md="12" sm="6" xs="12">
             <lay-form-item label="银行" required>
               <lay-select v-model="cardForm.bankType" placeholder="请选择银行">
@@ -172,10 +172,10 @@
         <lay-form-item label="卡号" required>
           <lay-input v-model="cardForm.cardNumber" placeholder="请输入完整的银行卡号" :maxlength="19" />
         </lay-form-item>
-        <lay-row :gutter="[16, 0]" v-if="cardForm.cardType === '2'">
+        <lay-row :gutter="[20, 16]" v-if="cardForm.cardType === '2'">
           <lay-col lg="12" md="12" sm="6" xs="12">
             <lay-form-item label="信用额度">
-              <lay-input v-model="cardForm.creditLimit" type="number" placeholder="请输入信用额度" />
+              <lay-input v-model="cardForm.creditLimit" type="number" placeholder="请输入信用额度" prefix="¥" />
             </lay-form-item>
           </lay-col>
           <lay-col lg="12" md="12" sm="6" xs="12">
@@ -193,13 +193,15 @@
         </lay-form-item>
       </lay-form>
       <template #footer>
-        <lay-button @click="closeCardModal">取消</lay-button>
-        <lay-button type="danger" @click="deleteCurrentCard" v-if="editMode">
-          <i class="layui-icon layui-icon-delete"></i> 删除
-        </lay-button>
-        <lay-button type="primary" @click="submitCard">
-          <i class="layui-icon layui-icon-ok"></i> 确认
-        </lay-button>
+        <div style="display: flex; gap: 12px; justify-content: flex-end; padding: 0 16px 16px;">
+          <lay-button @click="closeCardModal">取消</lay-button>
+          <lay-button type="danger" @click="deleteCurrentCard" v-if="editMode">
+            <i class="layui-icon layui-icon-delete"></i> 删除
+          </lay-button>
+          <lay-button type="normal" @click="submitCard">
+            <i class="layui-icon layui-icon-ok"></i> 确认
+          </lay-button>
+        </div>
       </template>
     </lay-layer>
   </div>

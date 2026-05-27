@@ -171,28 +171,28 @@
       </lay-card>
     </lay-space>
 
-    <lay-layer v-model="showBillModal" :title="editMode ? '编辑账单' : '记一笔'" :area="['600px', 'auto']">
-      <lay-form :model="billForm" :label-width="80" style="padding: 8px 0;">
+    <lay-layer v-model="showBillModal" :title="editMode ? '编辑账单' : '记一笔'" :area="['650px']" >
+      <lay-form :model="billForm" :label-width="70" style="padding: 16px;">
         <lay-form-item label="类型" required>
           <div class="type-selector">
             <lay-button 
-              :type="billForm.type === '支出' ? 'normal' : undefined"
+              :type="billForm.type === '支出' ? 'normal' : 'default'"
               @click="billForm.type = '支出'"
             >
-              支出
+              <i class="layui-icon layui-icon-rmb"></i> 支出
             </lay-button>
             <lay-button 
-              :type="billForm.type === '收入' ? 'normal' : undefined"
+              :type="billForm.type === '收入' ? 'normal' : 'default'"
               @click="billForm.type = '收入'"
             >
-              收入
+              <i class="layui-icon layui-icon-dollar"></i> 收入
             </lay-button>
           </div>
         </lay-form-item>
-        <lay-row :gutter="[16, 0]">
+        <lay-row :gutter="[20, 16]">
           <lay-col lg="12" md="12" sm="12" xs="24">
             <lay-form-item label="金额" required>
-              <lay-input v-model="billForm.amount" placeholder="请输入金额" type="number" />
+              <lay-input v-model="billForm.amount" placeholder="0.00" type="number" prefix="¥" />
             </lay-form-item>
           </lay-col>
           <lay-col lg="12" md="12" sm="12" xs="24">
@@ -201,7 +201,7 @@
             </lay-form-item>
           </lay-col>
         </lay-row>
-        <lay-row :gutter="[16, 0]">
+        <lay-row :gutter="[20, 16]">
           <lay-col lg="12" md="12" sm="12" xs="24">
             <lay-form-item label="分类" required>
               <lay-select v-model="billForm.category" placeholder="请选择分类">
@@ -222,8 +222,10 @@
         </lay-form-item>
       </lay-form>
       <template #footer>
-        <lay-button @click="showBillModal = false">取消</lay-button>
-        <lay-button type="normal" @click="submitBill">确认记账</lay-button>
+        <div style="display: flex; gap: 12px; justify-content: flex-end; padding: 0 16px 16px;">
+          <lay-button @click="showBillModal = false">取消</lay-button>
+          <lay-button type="normal" @click="submitBill">确认记账</lay-button>
+        </div>
       </template>
     </lay-layer>
   </div>

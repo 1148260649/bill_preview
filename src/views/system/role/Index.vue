@@ -62,9 +62,9 @@
       </div>
     </lay-card>
 
-    <lay-layer v-model="showRoleModal" :title="editMode ? '编辑角色' : '添加角色'" :area="['600px', 'auto']">
-      <lay-form :model="roleForm" :label-width="80" style="padding: 8px 0;">
-        <lay-row :gutter="[16, 0]">
+    <lay-layer v-model="showRoleModal" :title="editMode ? '编辑角色' : '添加角色'" :area="['650px']" >
+      <lay-form :model="roleForm" :label-width="90" style="padding: 16px;">
+        <lay-row :gutter="[20, 16]">
           <lay-col lg="12" md="12" sm="6" xs="12">
             <lay-form-item label="角色名称" required>
               <lay-input v-model="roleForm.roleName" placeholder="请输入角色名称" />
@@ -76,22 +76,30 @@
             </lay-form-item>
           </lay-col>
         </lay-row>
-        <lay-form-item label="显示顺序">
-          <lay-input v-model="roleForm.roleSort" type="number" placeholder="数字越小越靠前" />
-        </lay-form-item>
-        <lay-form-item label="状态">
-          <lay-radio-group v-model="roleForm.status">
-            <lay-radio value="1">正常</lay-radio>
-            <lay-radio value="0">停用</lay-radio>
-          </lay-radio-group>
-        </lay-form-item>
+        <lay-row :gutter="[20, 16]">
+          <lay-col lg="12" md="12" sm="6" xs="12">
+            <lay-form-item label="显示顺序">
+              <lay-input v-model="roleForm.roleSort" type="number" placeholder="数字越小越靠前" />
+            </lay-form-item>
+          </lay-col>
+          <lay-col lg="12" md="12" sm="6" xs="12">
+            <lay-form-item label="状态">
+              <lay-radio-group v-model="roleForm.status">
+                <lay-radio value="1">正常</lay-radio>
+                <lay-radio value="0">停用</lay-radio>
+              </lay-radio-group>
+            </lay-form-item>
+          </lay-col>
+        </lay-row>
         <lay-form-item label="备注">
           <lay-textarea v-model="roleForm.remark" placeholder="请输入备注" :rows="3" />
         </lay-form-item>
       </lay-form>
       <template #footer>
-        <lay-button @click="showRoleModal = false">取消</lay-button>
-        <lay-button type="normal" @click="submitRole">确认保存</lay-button>
+        <div style="display: flex; gap: 12px; justify-content: flex-end; padding: 0 16px 16px;">
+          <lay-button @click="showRoleModal = false">取消</lay-button>
+          <lay-button type="normal" @click="submitRole">确认保存</lay-button>
+        </div>
       </template>
     </lay-layer>
   </div>
